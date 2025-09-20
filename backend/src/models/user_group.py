@@ -1,5 +1,5 @@
 from config import Base
-from sqlalchemy import Column, Integer, ForeignKey, Table
+from sqlalchemy import Column, Integer, ForeignKey, Table, UniqueConstraint
 
 user_group = Table(
     'User_Groups',

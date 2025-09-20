@@ -1,5 +1,5 @@
 from config import Base
-from sqlalchemy import Column, Integer, DateTime, func, ForeignKey
+from sqlalchemy import Column, Integer, DateTime, func, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 class FollowerModel(Base):
@@ -8,6 +8,10 @@ class FollowerModel(Base):
     follower_id = Column(Integer, ForeignKey('Users.id'), nullable=False)
     followed_id = Column(Integer, ForeignKey('Users.id'), nullable=False)
     created = Column(DateTime(timezone=True), server_default=func.now())
+    
+    __table_args__ = (
+        UniqueConstraint('follower_id', 'followed_id', name='uix_user_group'),
+    )
 
     follower = relationship('UserModel', foreign_keys=[follower_id], backref= 'following')
     followed = relationship('UserModel', foreign_keys=[followed_id],backref= 'followers')
