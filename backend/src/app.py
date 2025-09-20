@@ -8,5 +8,5 @@ init_db()
 app = FastAPI()
 
 @app.get('/')
-def get_users(db:Session = Depends(get_db)):
-    return db.query(UserModel).all()
+def root():
+    return {'message': 'Api running'}
