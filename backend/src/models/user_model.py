@@ -1,7 +1,6 @@
 from config import Base
 from sqlalchemy import Column, Integer, DateTime, String, func, CheckConstraint
-from sqlalchemy.orm import relationship, validates
-from .user_group import user_group
+from sqlalchemy.orm import relationship
 
 class UserModel(Base):
     __tablename__ = 'Users'
@@ -19,4 +18,5 @@ class UserModel(Base):
         CheckConstraint('length(password) >= 8', name='the password is very short')
     )
 
-    groups = relationship('GroupModel', secondary=user_group, back_populates='members')
+    conversations = relationship('ConversationUserModel', back_populates='user')
+    messages = relationship('MessageModel', back_populates='sender')
