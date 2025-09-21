@@ -2,18 +2,47 @@ mensajería-app/
 │
 ├── backend/
 │   ├── src/
-│   │   ├── config/           # Configuración general (DB, env, etc.)
-│   │   ├── controllers/      # Lógica de controladores (usuarios, mensajes, grupos)
-│   │   ├── models/           # Definición de modelos de la base de datos (ORM)
-│   │   ├── routes/           # Definición de rutas/endpoints
-│   │   ├── middlewares/      # Middlewares (autenticación, validación, etc.)
-│   │   ├── services/         # Lógica de negocio y servicios auxiliares
-│   │   ├── utils/            # Utilidades y helpers
-│   │   ├── sockets/          # Lógica de WebSockets (chat en tiempo real)
-│   │   └── app.js            # Punto de entrada de la app (Express)
-│   ├── tests/                # Pruebas unitarias/integración para backend
-│   ├── package.json
-│   └── .env
+│   │   ├── config/             # Configuración (DB, settings, env, etc.)
+│   │   │   ├── database.py
+│   │   │   ├── settings.py
+│   │   │   └── __init__.py
+│   │   ├── models/             # Modelos ORM (SQLAlchemy)
+│   │   │   ├── user.py
+│   │   │   ├── message.py
+│   │   │   ├── group.py
+│   │   │   └── __init__.py
+│   │   ├── schemas/            # Esquemas Pydantic (validación y serialización)
+│   │   │   ├── user.py
+│   │   │   ├── message.py
+│   │   │   ├── group.py
+│   │   │   └── __init__.py
+│   │   ├── crud/               # Lógica CRUD (consultas y operaciones DB)
+│   │   │   ├── user.py
+│   │   │   ├── message.py
+│   │   │   ├── group.py
+│   │   │   └── __init__.py
+│   │   ├── api/                # Rutas (routers FastAPI)
+│   │   │   ├── user.py
+│   │   │   ├── message.py
+│   │   │   ├── group.py
+│   │   │   └── __init__.py
+│   │   ├── services/           # Lógica de negocio (opcional, para reglas complejas)
+│   │   │   ├── auth.py
+│   │   │   └── __init__.py
+│   │   ├── middlewares/        # Middlewares personalizados
+│   │   │   └── __init__.py
+│   │   ├── dependencies/       # Dependencias de FastAPI (auth, db, etc.)
+│   │   │   └── __init__.py
+│   │   ├── utils/              # Utilidades generales
+│   │   │   └── __init__.py
+│   │   ├── websockets/         # Lógica WebSocket para chat en tiempo real
+│   │   │   └── chat.py
+│   │   ├── main.py             # Punto de entrada de la app FastAPI
+│   │   └── __init__.py
+│   ├── alembic/                # Migraciones de base de datos (si usas Alembic)
+│   ├── tests/                  # Pruebas unitarias e integración
+│   ├── requirements.txt        # Dependencias Python
+│   └── .env   
 │
 ├── frontend/
 │   ├── public/
@@ -36,36 +65,48 @@ mensajería-app/
 └── .gitignore
 
 
+Secuencia recomendada para construir tu backend FastAPI
 config/
 
-Crea las configuraciones básicas: conexión a la base de datos (db.js), carga de variables de entorno, etc.
-Esto te permitirá tener un entorno funcional y flexible desde el principio.
-
+Prepara la configuración base: conexión a la base de datos (database.py), variables de entorno (settings.py).
+Así tendrás acceso a la DB y settings en todo el proyecto.
 models/
 
-Define los modelos principales (Usuario, Mensaje, Grupo, etc.) y sus relaciones.
-Así puedes avanzar con el diseño de la base de datos y empezar a probar migraciones.
-app.js
+Define los modelos principales en SQLAlchemy (user.py, message.py, group.py).
+Establece relaciones y constraints básicos.
+Así puedes crear/migrar la base de datos desde el inicio.
+schemas/
 
-Crea el archivo de entrada de tu aplicación.
-Aquí montas Express, importas la configuración, conectas la base de datos y pruebas que el servidor levante correctamente.
+Crea los esquemas Pydantic para validación y serialización de datos (entrada/salida).
+Ej: UserCreate, UserRead, MessageCreate, etc.
+crud/
 
-routes/
+Implementa la lógica CRUD básica (funciones para crear, leer, actualizar, eliminar en la DB).
+Así desacoplas la lógica de acceso a datos de los endpoints.
+api/
 
-Define las primeras rutas básicas para probar tu backend (por ejemplo, una ruta /ping o /users).
-controllers/
+Crea los routers FastAPI para cada recurso (user.py, message.py, group.py).
+Aquí defines los endpoints y llamas a los métodos de crud/ y usas los schemas.
+Ej: /users, /messages, etc.
+main.py
 
-Implementa la lógica de los controladores para tus rutas. Aquí va la lógica para manejar las peticiones.
-Después, cuando ya tengas el servidor funcionando y los modelos creados, puedes avanzar con:
+Crea la app FastAPI, incluye los routers, configura middlewares y eventos.
+Así tienes un punto de entrada funcional al backend.
+middlewares/ (opcional, después de lo básico)
 
-middlewares/ (autenticación, validación, manejo de errores)
-services/ (lógica de negocio separada de los controladores)
-utils/ (funciones auxiliares que se usen en varios lugares)
-sockets/ (lógica para chat en tiempo real con Socket.io, cuando ya tengas lo básico funcionando)
-Resumen visual del orden sugerido:
-config/
-models/
-app.js
-routes/
-controllers/
-Luego: middlewares/, services/, utils/, sockets/
+Añade middlewares personalizados (autenticación, manejo de errores global, CORS, etc.).
+services/ (opcional, si tienes lógica de negocio compleja)
+
+Implementa lógica de negocio que no sea CRUD puro (ej: reglas de chat, notificaciones, etc.).
+dependencies/ (opcional, para dependencias reutilizables de FastAPI)
+
+Ej: autenticación, obtener usuario actual, conexión db, etc.
+websockets/ (opcional, cuando agregues chat en tiempo real)
+
+Implementa la lógica para WebSockets.
+utils/
+
+Agrega funciones utilitarias usadas en varios lugares, helpers, etc.
+tests/
+
+Escribe pruebas para cada módulo (puedes hacerlo en paralelo a cada paso).
