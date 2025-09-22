@@ -41,7 +41,19 @@ def get_users(db: Session = Depends(get_db)):
 
 @root.get('/')
 def get_user_by_username(username:str, db:Session = Depends(get_db)):
-    return get_by_username(db, username)
+    try:
+        user = get_by_username(db, username)
+        
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={'message', 'User not found'}
+            )
+        
+        return user
+    except ValueError as error:
+        print(error)
+        
 
 
 '''
