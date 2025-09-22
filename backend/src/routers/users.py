@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from schemas import UserCreate, UserRead
 from models import UserModel
-from utils import get_user_email
+from utils import get_user_email, get_by_username
 from config import get_db
 
 
@@ -34,10 +34,14 @@ def create_user(user:UserCreate, db: Session = Depends(get_db)):
     except ValueError as e:
         print(e)
         
-@root.get('/')
+@root.get('/', response_model=list[UserRead])
 def get_users(db: Session = Depends(get_db)):
     users = db.query(UserModel).all()
     return users
+
+@root.get('/')
+def get_user_by_username(username:str, db:Session = Depends(get_db)):
+    return get_by_username(db, username)
 
 
 '''
@@ -46,6 +50,6 @@ def get_users(db: Session = Depends(get_db)):
     "age": 18,
     "username": "string",
     "email": "user@example.com",
-    "password": "Stringlo8"
+    "password": "Santiago1"
     }
 '''
