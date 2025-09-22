@@ -6,7 +6,7 @@ from utils import get_user_email, get_by_username
 from config import get_db
 
 
-root = APIRouter(prefix='/Users', tags=['Users'])
+root = APIRouter(prefix='/users', tags=['Users'])
 
 @root.post('/')
 def create_user(user:UserCreate, db: Session = Depends(get_db)):
@@ -25,7 +25,6 @@ def create_user(user:UserCreate, db: Session = Depends(get_db)):
             username = user.username,
             password = user.password
         )
-        print('x')
         
         db.add(new_user)
         db.commit()
@@ -39,7 +38,7 @@ def get_users(db: Session = Depends(get_db)):
     users = db.query(UserModel).all()
     return users
 
-@root.get('/')
+@root.get('/username')
 def get_user_by_username(username:str, db:Session = Depends(get_db)):
     try:
         user = get_by_username(db, username)
@@ -56,12 +55,18 @@ def get_user_by_username(username:str, db:Session = Depends(get_db)):
         
 
 
+
 '''
-    {
-    "name": "string",
-    "age": 18,
-    "username": "string",
-    "email": "user@example.com",
-    "password": "Santiago1"
-    }
+    [
+  ,
+  ,
+  ,
+  ,
+  ,
+  ,
+  ,
+  ,
+  ,
+  
+]
 '''
