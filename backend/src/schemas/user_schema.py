@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr, validator
+from typing import Optional
 import re
 
 class UserBase(BaseModel):
@@ -35,3 +36,10 @@ class UserLogged(UserBase):
     
 class UserDeleteRequest(BaseModel):
     password: str
+    
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None
+    

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from schemas import UserCreate, UserRead, UserDeleteRequest
+from schemas import UserCreate, UserRead, UserDeleteRequest, UserUpdate
 from models import UserModel, FollowerModel
 from utils import get_user_email, get_by_username, verify_follow
 from config import get_db
@@ -102,6 +102,22 @@ def delete_current_user(data: UserDeleteRequest, user: UserModel = Depends(get_c
         print(error, ' value error')
     except HTTPException as e:
         print(e.detail, 'HTTPException')
+        
+        
+@root.patch('/')
+def update_user(data: UserUpdate, current_user:UserModel = Depends(get_current_user), db:Session = Depends(get_db)):
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Invalida credentials'
+        )
+    update_data = data.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(current_user, key, value)
+    
+    db.commit()
+    db.refresh(current_user)
+    return 'Updated user'
 
 @root.get('/followers')
 def get_follower(user:UserModel = Depends(get_current_user)):
