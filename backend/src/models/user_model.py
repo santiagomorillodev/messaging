@@ -20,3 +20,5 @@ class UserModel(Base):
 
     conversations = relationship('ConversationUserModel', back_populates='user')
     messages = relationship('MessageModel', back_populates='sender')
+    following = relationship('FollowerModel', foreign_keys='FollowerModel.follower_id', back_populates='follower')
+    followers = relationship('FollowerModel', foreign_keys='FollowerModel.followed_id', back_populates='followed')

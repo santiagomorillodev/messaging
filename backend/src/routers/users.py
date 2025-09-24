@@ -104,33 +104,31 @@ def delete_current_user(data: UserDeleteRequest, user: UserModel = Depends(get_c
         print(e.detail, 'HTTPException')
 
 @root.get('/followers')
-def get_follower(user_id: int, db:Session = Depends(get_db)):
+def get_follower(user:UserModel = Depends(get_current_user), db:Session = Depends(get_db)):
     try:
-        followers = db.query(FollowerModel).filter(FollowerModel.follower_id == user_id).all()
-        if not followers:
+        if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={'message': "He has no followers"}
             )
-        return followers
+        return user.followers
     except ValueError as error:
         print(error)
         
-@root.get('/followed')
-def get_followed(user_id: int, db:Session = Depends(get_db)):
+@root.get('/following')
+def get_followed(user:UserModel = Depends(get_current_user), db:Session = Depends(get_db)):
     try:
-        followers = db.query(FollowerModel).filter(FollowerModel.followed_id == user_id).all()
-        if not followers:
+        if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={'message': "You don't follow anyone"}
             )
-        return followers
+        return user.following
     except ValueError as error:
         print(error)
 
 @root.post('/follower')
-def follow(current_user: int, followed: int, db: Session = Depends(get_db)):
+def follow(followed: int, current_user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
     
     try:
         follow_user = verify_follow(current_user, followed, db)
@@ -152,7 +150,7 @@ def follow(current_user: int, followed: int, db: Session = Depends(get_db)):
         print(error)
 
 @root.delete('/follower')
-def unfollow(current_user: int, followed: int, db: Session = Depends(get_db)):
+def unfollow(followed: int, current_user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
     try:
         following = verify_follow(current_user, followed, db)
         if not following:
@@ -168,5 +166,6 @@ def unfollow(current_user: int, followed: int, db: Session = Depends(get_db)):
         return {'message': '200 ok'}
     except ValueError as error:
         print(error)
+
 
 # Santiago1$
