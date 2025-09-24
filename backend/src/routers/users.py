@@ -104,7 +104,7 @@ def delete_current_user(data: UserDeleteRequest, user: UserModel = Depends(get_c
         print(e.detail, 'HTTPException')
 
 @root.get('/followers')
-def get_follower(user:UserModel = Depends(get_current_user), db:Session = Depends(get_db)):
+def get_follower(user:UserModel = Depends(get_current_user)):
     try:
         if not user:
             raise HTTPException(
@@ -116,7 +116,7 @@ def get_follower(user:UserModel = Depends(get_current_user), db:Session = Depend
         print(error)
         
 @root.get('/following')
-def get_followed(user:UserModel = Depends(get_current_user), db:Session = Depends(get_db)):
+def get_followed(user:UserModel = Depends(get_current_user)):
     try:
         if not user:
             raise HTTPException(
