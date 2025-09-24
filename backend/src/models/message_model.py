@@ -16,4 +16,4 @@ class MessageModel(Base):
     )
 
     conversation = relationship('ConversationModel', back_populates='messages')
-    sender = relationship('UserModel', back_populates='messages')
+    sender = relationship('UserModel', back_populates='messages', foreign_keys=[sender_id])
