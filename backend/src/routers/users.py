@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from schemas import UserCreate, UserRead, UserDeleteRequest
-from models import UserModel
-from utils import get_user_email, get_by_username
+from models import UserModel, FollowerModel
+from utils import get_user_email, get_by_username, verify_follow
 from config import get_db
 from security import hash_password, verify_password, create_access_token, get_current_user
 
@@ -102,5 +102,71 @@ def delete_current_user(data: UserDeleteRequest, user: UserModel = Depends(get_c
         print(error, ' value error')
     except HTTPException as e:
         print(e.detail, 'HTTPException')
+
+@root.get('/followers')
+def get_follower(user_id: int, db:Session = Depends(get_db)):
+    try:
+        followers = db.query(FollowerModel).filter(FollowerModel.follower_id == user_id).all()
+        if not followers:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={'message': "He has no followers"}
+            )
+        return followers
+    except ValueError as error:
+        print(error)
+        
+@root.get('/followed')
+def get_followed(user_id: int, db:Session = Depends(get_db)):
+    try:
+        followers = db.query(FollowerModel).filter(FollowerModel.followed_id == user_id).all()
+        if not followers:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={'message': "You don't follow anyone"}
+            )
+        return followers
+    except ValueError as error:
+        print(error)
+
+@root.post('/follower')
+def follow(current_user: int, followed: int, db: Session = Depends(get_db)):
+    
+    try:
+        follow_user = verify_follow(current_user, followed, db)
+        if follow_user:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={'message': 'You already follow this user'}
+            )
+        
+        new_follow = FollowerModel(
+            follower_id = current_user,
+            followed_id = followed
+        )
+        
+        db.add(new_follow)
+        db.commit()
+        return {'message': '200 ok'}
+    except ValueError as error:
+        print(error)
+
+@root.delete('/follower')
+def unfollow(current_user: int, followed: int, db: Session = Depends(get_db)):
+    try:
+        following = verify_follow(current_user, followed, db)
+        if not following:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={'message': "You don't follow this account"}
+            )
+            
+        print(following)
+        
+        db.delete(following)
+        db.commit()
+        return {'message': '200 ok'}
+    except ValueError as error:
+        print(error)
 
 # Santiago1$
