@@ -24,3 +24,14 @@ class UserCreate(UserBase):
 
 class UserRead(UserBase):
     email: EmailStr
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class UserLogged(UserBase):
+    email: EmailStr
+    password: str
+    
+class UserDeleteRequest(BaseModel):
+    password: str

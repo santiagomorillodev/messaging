@@ -1,17 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from schemas import UserCreate, UserRead
+from schemas import UserCreate, UserRead, UserDeleteRequest
 from models import UserModel
 from utils import get_user_email, get_by_username
 from config import get_db
+from security import hash_password, verify_password, create_access_token, get_current_user
 
 
-root = APIRouter(prefix='/users', tags=['Users'])
+root = APIRouter(tags=['Users'])
 
-@root.post('/')
-def create_user(user:UserCreate, db: Session = Depends(get_db)):
+@root.post('/register')
+def register(user:UserCreate, db: Session = Depends(get_db)):
     try:
         user_db = get_user_email(db, user.email)
+        
         if user_db:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -23,7 +26,7 @@ def create_user(user:UserCreate, db: Session = Depends(get_db)):
             age = user.age,
             email = user.email,
             username = user.username,
-            password = user.password
+            password = hash_password(user.password)
         )
         
         db.add(new_user)
@@ -32,7 +35,25 @@ def create_user(user:UserCreate, db: Session = Depends(get_db)):
         return {'message': 'User Created'}
     except ValueError as e:
         print(e)
+
+@root.post('/login')
+def login(data:OAuth2PasswordRequestForm = Depends(), db:Session = Depends(get_db)):
+    
+    try:
+        user_db = db.query(UserModel).filter(UserModel.username == data.username).first()
         
+        if not user_db or not verify_password(data.password, user_db.password):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail='invalid credentials'
+            )
+            
+        token = create_access_token({'sub': user_db.username, 'id': user_db.id})
+        return {'access_token': token, 'token_type': 'bearer'}
+    
+    except ValueError as error:
+        print(error)
+
 @root.get('/', response_model=list[UserRead])
 def get_users(db: Session = Depends(get_db)):
     users = db.query(UserModel).all()
@@ -52,21 +73,34 @@ def get_user_by_username(username:str, db:Session = Depends(get_db)):
         return user
     except ValueError as error:
         print(error)
+      
+
+@root.get('/me', response_model=UserRead)
+def current_user(user:UserModel = Depends(get_current_user)):
+    return user
+
+
+@root.delete('/')
+def delete_current_user(data: UserDeleteRequest, user: UserModel = Depends(get_current_user), db:Session = Depends(get_db)):
+    password = str(data.password)
+    hashed_password = str(user.password)
+    print(password, '\n', hashed_password)
+    try:
         
+        correct_password = verify_password(password, hashed_password)
+        
+        if not correct_password:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail='Invalid credentials in endpoint'
+            )
+        
+        db.delete(user)
+        db.commit()
+        return '200 ok'
+    except ValueError as error:
+        print(error, ' value error')
+    except HTTPException as e:
+        print(e.detail, 'HTTPException')
 
-
-
-'''
-    [
-  ,
-  ,
-  ,
-  ,
-  ,
-  ,
-  ,
-  ,
-  ,
-  
-]
-'''
+# Santiago1$
