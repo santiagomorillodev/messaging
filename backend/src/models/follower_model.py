@@ -13,5 +13,14 @@ class FollowerModel(Base):
         UniqueConstraint('follower_id', 'followed_id', name='uix_user_group'),
     )
 
-    follower = relationship('UserModel', foreign_keys=[follower_id], backref= 'following')
-    followed = relationship('UserModel', foreign_keys=[followed_id],backref= 'followers')
+    follower = relationship(
+        'UserModel',
+        foreign_keys=[follower_id],
+        back_populates='following'
+    )
+    # El usuario que es seguido
+    followed = relationship(
+        'UserModel',
+        foreign_keys=[followed_id],
+        back_populates='followers'
+    )

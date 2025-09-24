@@ -1,8 +1,8 @@
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
-from models import FollowerModel
+from models import FollowerModel, UserModel
 
-def verify_follow(current_user:int, second_user:int, db: Session):
+def verify_follow(current_user:UserModel, second_user:int, db: Session):
     '''
         Verifica si second_user sigue a current_user.
 
@@ -14,7 +14,7 @@ def verify_follow(current_user:int, second_user:int, db: Session):
     Returns:
         FollowerModel | None: Devuelve el objeto FollowerModel si existe la relación
         de seguimiento, o None si no existe.
-    '''
+    '''    
     return db.query(FollowerModel).filter(
-        and_(FollowerModel.follower_id == current_user,FollowerModel.followed_id == second_user)
+        and_(FollowerModel.follower_id == second_user,FollowerModel.followed_id == current_user.id)
     ).first()
