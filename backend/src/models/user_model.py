@@ -18,7 +18,8 @@ class UserModel(Base):
         CheckConstraint('length(password) >= 8', name='the password is very short')
     )
 
-    conversations = relationship('ConversationUserModel', back_populates='user')
+    conversation_first_user = relationship('ConversationModel', back_populates='first_user', foreign_keys='ConversationModel.first_user_id')
+    conversation_second_user = relationship('ConversationModel', back_populates='second_user', foreign_keys='ConversationModel.second_user_id')
     messages = relationship('MessageModel', back_populates='sender')
     following = relationship('FollowerModel', foreign_keys='FollowerModel.follower_id', back_populates='follower')
     followers = relationship('FollowerModel', foreign_keys='FollowerModel.followed_id', back_populates='followed')
