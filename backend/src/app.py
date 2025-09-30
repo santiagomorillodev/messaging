@@ -1,11 +1,11 @@
-from fastapi import FastAPI, Depends
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
 from config import init_db
-from routers import root as users
+from routers import user, conversations
 
 init_db()
 app = FastAPI()
-app.include_router(users)
+app.include_router(user)
+app.include_router(conversations)
 
 @app.get('/')
 def root():
