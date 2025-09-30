@@ -7,7 +7,7 @@ from config import get_db
 from security import get_current_user
  
 
-root = APIRouter(prefix='/Conversation', tags=['Conversation'])
+root = APIRouter(prefix='/conversation', tags=['Conversation'])
 
 def search_conversation(current_user: UserModel, user_2: UserConversation, db:Session):
     return db.query(ConversationModel).filter(

@@ -9,10 +9,15 @@ class MessageCreate(MessageBase):
     pass
 
 class MessageRead(MessageBase):
+    pass
+
+class MessageResponse(BaseModel):
+    message_id: int
+    sender_id: int
+    content: str
     created: datetime
     
-class MessageUpdate(BaseModel):
-    content: str
+class MessageRequest(BaseModel):
     id: int
     
 class MessageDelete(BaseModel):
