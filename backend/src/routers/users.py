@@ -14,17 +14,17 @@ root = APIRouter(tags=['Users'])
 def register(user:UserCreate, db: Session = Depends(get_db)):
     try:
         email = get_user_email(db, user.email)
-        user_username = get_by_username
+        user_username = get_by_username(db,user.username)
         if email:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail={'message', 'The email is already in use'}
+                detail='The email is already in use'
             )
         
         if user_username:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail={'message', 'The username is already in use'}
+                detail='The username is already in use'
             )
             
         new_user = UserModel(
