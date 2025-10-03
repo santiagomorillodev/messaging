@@ -6,6 +6,7 @@ class ImageModel(Base):
     __tablename__ = 'Images'
     id = Column(Integer, nullable=False, primary_key=True, autoincrement=True)
     id_user = Column(Integer, ForeignKey('Users.id'), nullable=False)
+    public_id = Column(Text,nullable=False)
     url = Column(Text, nullable=False)
 
     user = relationship('UserModel', back_populates='images')
