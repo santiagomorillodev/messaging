@@ -11,6 +11,7 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     email: EmailStr
     password: str
+    avatar_url:Optional[str] = None
     @validator('email')
     def email_regex(cls, v):
         if not re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", v):
@@ -25,6 +26,8 @@ class UserCreate(UserBase):
 
 class UserRead(UserBase):
     email: EmailStr
+    avatar_url:Optional[str] = None
+
 
 class UserLogin(BaseModel):
     email: EmailStr

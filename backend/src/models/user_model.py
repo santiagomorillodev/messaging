@@ -1,5 +1,5 @@
 from config import Base
-from sqlalchemy import Column, Integer, DateTime, String, func, CheckConstraint
+from sqlalchemy import Column, Integer, DateTime, String, func, CheckConstraint, Text
 from sqlalchemy.orm import relationship
 
 class UserModel(Base):
@@ -10,6 +10,7 @@ class UserModel(Base):
     username = Column(String(50), nullable=False, unique=True)
     email = Column(String(100), nullable=False, unique=True)
     password = Column(String(100), nullable=False)
+    avatar_url = Column(Text, nullable=True, default=None)
     created = Column(DateTime(timezone=True), server_default=func.now())
     
     __table_args__ = (
@@ -23,3 +24,4 @@ class UserModel(Base):
     messages = relationship('MessageModel', back_populates='sender')
     following = relationship('FollowerModel', foreign_keys='FollowerModel.follower_id', back_populates='follower')
     followers = relationship('FollowerModel', foreign_keys='FollowerModel.followed_id', back_populates='followed')
+    images = relationship('ImageModel', back_populates='user')

@@ -2,6 +2,8 @@
     "cSpell.ignoreWords": [
         "autoflush",
         "backref",
+        "cloudinary",
+        "dotenv",
         "jose",
         "mysql",
         "nubu",
