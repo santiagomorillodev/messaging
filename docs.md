@@ -110,3 +110,15 @@ Agrega funciones utilitarias usadas en varios lugares, helpers, etc.
 tests/
 
 Escribe pruebas para cada módulo (puedes hacerlo en paralelo a cada paso).
+
+
+
+
+
+
+
+____________________________________________________________________
+
+HACER PANTALLA DE ME GUSTAS ♥ Y DE ACTUALIZACION DE USUARIOS
+
+_____________________________________________________________________
