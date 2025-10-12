@@ -5,9 +5,7 @@ export function MessageContainer({ contenido, sender }) {
     <div className={sender 
       ? 'ml-auto bg-blue-400 text-white rounded-xl p-2 mb-2 max-w-xs flex flex-col w-[70%]' 
       : 'bg-gray-100 text-black rounded-xl p-2 mb-2 max-w-xs flex flex-col w-[70%]'}>
-      {/* Mensaje */}
       <span>{contenido}</span>
-      {/* Hora y check alineados a la derecha */}
       {sender && (
         <div className="flex items-center justify-end gap-1 mt-1">
           <span className="text-xs">05:44</span>

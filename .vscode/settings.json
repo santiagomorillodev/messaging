@@ -1,5 +1,7 @@
 {
     "cSpell.ignoreWords": [
+        "Esthefania",
+        "Farrugio",
         "autoflush",
         "backref",
         "cloudinary",
@@ -8,6 +10,7 @@
         "mysql",
         "nubu",
         "nullable",
+        "santiagomorillodev",
         "sessionmaker"
     ]
 }

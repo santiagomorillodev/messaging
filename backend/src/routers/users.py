@@ -7,7 +7,6 @@ from utils import get_user_email, get_by_username, verify_follow
 from config import get_db
 from security import hash_password, verify_password, create_access_token, get_current_user
 
-
 root = APIRouter(tags=['Users'])
 
 @root.post('/register')
@@ -80,7 +79,6 @@ def get_user_by_username(username:str, db:Session = Depends(get_db)):
     except ValueError as error:
         print(error)
       
-
 @root.get('/me', response_model=UserRead)
 def current_user(user:UserModel = Depends(get_current_user)):
     return user
@@ -188,6 +186,5 @@ def unfollow(followed: int, current_user: UserModel = Depends(get_current_user),
         return {'message': '200 ok'}
     except ValueError as error:
         print(error)
-
 
 # Santiago1$

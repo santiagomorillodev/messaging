@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { Login } from './pages/Login'
 import { Register } from './pages/Register'
@@ -9,14 +9,20 @@ import { Profile } from './pages/Profile'
 import { Status } from './pages/Status.jsx'
 import { Bell } from './pages/Bell.jsx'
 import NotFound from './pages/NotFound.jsx'
+import { SearchPage } from './pages/SearchPage.jsx'
+import Likes from './pages/Likes.jsx'
+import UpdatePassword from './pages/UpdatePassword.jsx'
+import UpdateEmail from './pages/UpdateEmail.jsx'
+import DesktopLayout from './pages/Desktop.jsx'
+
 
 function App() {
-  // 🌙 Recuperar el estado guardado o por defecto false
+  const navigate = useNavigate()
+
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem('theme') === 'dark'
   })
 
-  // 🌀 Sincronizar el modo con <html> y localStorage
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark')
@@ -27,14 +33,26 @@ function App() {
     }
   }, [darkMode])
 
-  const toggleDarkMode = () => {
-    setDarkMode(prev => !prev)
-    console.log(darkMode)
-  }
+  const toggleDarkMode = () => setDarkMode(prev => !prev)
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768 && !window.location.pathname.startsWith('/desktop')) {
+        navigate('/desktop')
+      } else if (window.innerWidth <= 768 && window.location.pathname.startsWith('/desktop')) {
+        navigate('/')
+      }
+    }
+
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [navigate])
 
   return (
     <main className="bg-white dark:bg-neutral-900 text-black dark:text-white min-h-screen transition-colors">
       <Routes>
+        
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
         <Route path='/' element={<Inbox toggleDarkMode={toggleDarkMode} />} />
@@ -43,6 +61,19 @@ function App() {
         <Route path='/profile' element={<Profile />} />
         <Route path='/status' element={<Status />} />
         <Route path='/notification' element={<Bell />} />
+        <Route path='/search' element={<SearchPage />} />
+        <Route path='/likes' element={<Likes />} />
+        <Route path='/update/password' element={<UpdatePassword />} />
+        <Route path='/update/email' element={<UpdateEmail />} />
+
+        <Route path='/desktop' element={<DesktopLayout />}>
+          <Route index element={<Inbox />} />
+          <Route path='inbox' element={<Chat />} />
+          <Route path='search' element={<SearchPage />} />
+          <Route path='notification' element={<Bell />} />
+          <Route path='status' element={<Status />} />
+        </Route>
+
         <Route path='*' element={<NotFound />} />
       </Routes>
     </main>

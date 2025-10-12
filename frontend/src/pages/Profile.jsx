@@ -6,33 +6,32 @@ import avatar3 from "../assets/avatar3.jpg";
 import { NavigationBar } from "../components/NavigationBar";
 import { Posts } from "../components/Posts";
 import FollowComponent from "../components/FollowComponent";
+import ModalEditProfile from "../components/ModalEditProfile";
 
 export function Profile() {
   const navigate = useNavigate()
   const [showModalFollows, setShowModalFollows] = useState(false)
   const [showModalLogOut, setShowModalLogOut] = useState(false)
-  const [follow, setFollow] = useState(false)
+
 
   return (
-    <div className="w-full h-screen px-4 flex flex-col gap-5">
+    <div className="w-full md:w-xl h-screen md:h-[90vh] px-4 flex flex-col gap-5 bg-neutral-900">
       <nav>
         <ul className="flex justify-between items-center border-b-2 border-gray-200">
           <li className="flex items-center gap-2">
-            <button onClick={()=> navigate(-1)}><i className="bx  bx-chevron-left text-blue-400 text-4xl cursor-pointer"></i></button>
+            <button onClick={()=> navigate(-1)}><i className="bx  bx-chevron-left text-blue-400 text-4xl cursor-pointer md:hidden"></i></button>
             <p className="font-bold">@santiagomorillodev</p>
           </li>
-          <li>
-            <p className="p-2"></p>
-          </li>
+          <li><p className="p-2"></p></li>
         </ul>
       </nav>
 
-      <section className="flex w-full gap-5 ">
+      <section className="flex items-center w-full gap-5 ">
         <img
           src={avatar}
           alt=""
-          width="55px"
-          className="rounded-full min-w-[65px] h-[65px] object-cover"
+          width="80px"
+          className="rounded-full min-w-[80px] h-[80px] object-cover"
         />
         <div className="flex flex-col gap-1">
           <p>santiago Morillo</p>
@@ -40,7 +39,7 @@ export function Profile() {
             <ul className=" flex justify-between">
               <li className="p-2">
                 <p>40</p>
-                <p>publicaciones</p>
+                <p>Posts</p>
               </li>
               <li className="p-2 cursor-pointer transition-all duration-150 ease-in-out hover:font-bold" onClick={()=> setShowModalFollows(true)}>
                 <p>1500</p>
@@ -55,9 +54,12 @@ export function Profile() {
         </div>
       </section>
 
+      <p className="text-white text-sm">Desarrollador web y móvil | React, React Native, Node.js, MongoDB, SQL, HTML, CSS, JavaScript | Colombia</p>
+
+
       <section className="w-full flex justify-between">
-        <button className="py-1 px-10 bg-gray-100 rounded-sm cursor-pointer ">Edit profile</button>
-        <p className="py-1 px-10 bg-gray-100 rounded-sm cursor-pointer">
+        <ModalEditProfile avatar={avatar} name={'Santiago'} username={'santiagomorillodev'} pronouns={'He'} bio={'Desarrollador web y móvil | React, React Native, Node.js, MongoDB, SQL, HTML, CSS, JavaScript | Colombia'} gender={'Male'}/>
+        <p className="py-1 px-10 bg-gray-100 dark:bg-neutral-600 rounded-sm cursor-pointer">
           New post
         </p>
       </section>
@@ -67,18 +69,22 @@ export function Profile() {
         <Posts imagePost={avatar2} />
         <Posts imagePost={avatar3} />
       </section>
-      <NavigationBar />
+      <div className="md:hidden">
+        <NavigationBar /> 
+      </div>
+
+    
 
     {showModalFollows && (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-10">
-        <div className="w-full h-80 bg-white rounded-3xl flex flex-col gap-2">
+        <div className="w-full h-80 bg-white dark:bg-neutral-900 rounded-3xl flex flex-col gap-2">
           <ul className="flex justify-between border-b border-gray-400 py-2 px-4 font-semibold text-lg h-10">
             <li className="px-2"></li>
             <li >Followers</li>
-            <li onClick={() => setShowModalFollows(false)}><i className='bx  bx-x text-black text-3xl cursor-pointer'></i> </li>
+            <li onClick={() => setShowModalFollows(false)}><i className='bx  bx-x text-black dark:text-white text-3xl cursor-pointer'></i> </li>
           </ul>
           <div className="p-2">
-            <div className="w-full h-8 flex items-center gap-3 bg-gray-100 rounded-sm">
+            <div className="w-full h-8 flex items-center gap-3 bg-gray-100 dark:bg-neutral-800 rounded-sm">
             <i class='bx  bx-search'  ></i>
             <input type="text" placeholder="Search" className="outline-0"/>
           </div>

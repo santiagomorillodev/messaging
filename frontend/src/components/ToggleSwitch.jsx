@@ -14,7 +14,7 @@ export function ToggleSwitch({ checked: checkedProp, onChange }) {
       onClick={handleToggle}
       className={`
         w-12 h-7 flex items-center rounded-full p-1 duration-300
-        ${checked ? 'bg-green-500' : 'bg-gray-200'}
+        ${checked ? 'bg-green-500' : 'bg-gray-200 dark:bg-neutral-800'}
       `}
       style={{ minWidth: 48, minHeight: 28 }}
     >

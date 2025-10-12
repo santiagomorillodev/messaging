@@ -1,10 +1,10 @@
 export function StatusUser ({name, time, avatar})  {
   return (
     <div className='flex gap-4'>
-        <img src={avatar} alt="" width='45px' className='rounded-full min-w-[60px] h-[60px] object-cover'/>
+        <img src={avatar} alt="" width='50px' className='rounded-full min-w-[50px] h-[50px] object-cover border-2 border-blue-400'/>
         <div>
-            <p>Juan Pérez</p>
-            <p>08:15 am</p>
+            <p className="text-sm">{name}</p>
+            <p className="text-sm">{time}</p>
         </div>
     </div>
   )
