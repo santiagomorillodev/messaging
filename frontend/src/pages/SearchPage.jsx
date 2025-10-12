@@ -1,15 +1,14 @@
-import { useNavigate } from 'react-router-dom'
 import avatar from "../assets/avatar.jpg";
 import avatar2 from "../assets/avatar2.jpg";
 import avatar3 from "../assets/avatar3.jpg";
 import UserSearchComponent from '../components/UserSearchComponent';
 import { NavigationBar } from '../components/NavigationBar';
+import Header from "../components/Header";
 export function SearchPage() {
-  const navigate = useNavigate()
   return (
     <section className='border-r border-neutral-500 md:min-w-[385px]'>
-      <header className='w-full flex items-center gap-2 px-4 py-2 border-b border-neutral-500'>
-          <i className="bx  bx-chevron-left text-blue-400 text-4xl cursor-pointer" onClick={()=> navigate(-1)}></i>
+      <Header sectionName={'Search user'}/>
+      <header className='w-full flex items-center px-4 py-2 '>
         <input type="text" placeholder='Search...' className='p-2 bg-neutral-600 w-full rounded-2xl outline-0'/>
       </header>
 
