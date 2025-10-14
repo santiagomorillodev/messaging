@@ -1,13 +1,13 @@
-import avatar from '../assets/avatar.jpg'
+import photo from '../assets/photo.jpg'
 import { MessageContainer } from '../components/MessageContainer'
 
 export function Chat () {
   return (
     <div className='w-full h-screen md:h-full bg-neutral-900 flex flex-col overflow-hidden'>
       <header className='flex justify-between items-center w-full bg-white dark:bg-neutral-800 p-2'>
-        <div className='flex items-center'>
-          <i className='bx bx-chevron-left text-blue-400 text-4xl cursor-pointer'></i>
-          <img src={avatar} alt="" width='45px' className='rounded-full min-w-[45px] h-[45px] object-cover'/>
+        <div className='flex items-center gap-2'>
+          <i className='bx bx-chevron-left text-blue-400 text-4xl cursor-pointer md:invisible'></i>
+          <img src={photo} alt="" width='45px' className='rounded-full min-w-[45px] h-[45px] object-cover'/>
           <div>
             <p>Santiago Morillo</p>
             <p>Activo ahora</p>
@@ -34,7 +34,7 @@ export function Chat () {
             <MessageContainer contenido={'Perfecto, ahí estaré. Gracias por la bienvenida!'} sender={false}/>
       </main>
 
-      <footer className='bg-white w-full dark:bg-neutral-800 flex gap-2 items-center py-3 px-4 z-50 '>
+      <footer className='bg-white w-full dark:bg-neutral-800 flex gap-2 items-center py-3 px-4 '>
             <i className="bx bxs-camera text-2xl text-white bg-blue-400 rounded-full p-2"></i>
             
             <input type="text" placeholder='Send a message' className='outline-0  w-full'/>

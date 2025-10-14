@@ -1,8 +1,8 @@
 import { ChatSummary } from "../components/ChatSummary";
 import { NavigationBar } from "../components/NavigationBar";
-import avatar from '../assets/avatar.jpg'
-import avatar2 from '../assets/avatar2.jpg'
-import avatar3 from '../assets/avatar3.jpg'
+import photo from '../assets/photo.jpg'
+import photo2 from '../assets/photo2.jpg'
+import photo3 from '../assets/photo3.jpg'
 import NavSettingsDesktop from "../components/Desktop/NavSettingsDesktop";
 import ProfileDesktop from "../components/Desktop/ProfileDesktop";
 import { Chat } from "./Chat";
@@ -23,7 +23,7 @@ export default function Desktop() {
           <NavigationBar />
           <div className="flex flex-col items-center justify-end flex-1 p-3">
             <NavSettingsDesktop/>
-            <ProfileDesktop avatar={avatar}/>
+            <ProfileDesktop photo={photo}/>
           </div>
         </section>
         <Outlet/>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import InputForm from './InputForm'
 
-export default function ModalEditProfile({ avatar , name, username, pronouns, bio, gender}) {
+export default function ModalEditProfile({ photo , name, username, pronouns, bio, gender}) {
     const [showModalEditProfile, setShowModalEditProfile] = useState(false)
   return (
     <>
@@ -16,7 +16,7 @@ export default function ModalEditProfile({ avatar , name, username, pronouns, bi
         
                   <form action="submit" className="p-4">
                     <div className="flex flex-col items-center gap-2 mb-4">
-                      <img src={avatar} alt="" className="w-24 h-24 rounded-full object-cover mx-auto"/>
+                      <img src={photo} alt="" className="w-24 h-24 rounded-full object-cover mx-auto"/>
                       <button className="text-blue-400">Change profile photo</button>
                     </div>
                     <div className="flex flex-col gap-4">

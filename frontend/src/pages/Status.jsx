@@ -1,9 +1,8 @@
-import avatar from '../assets/avatar.jpg'
-import avatar2 from '../assets/avatar2.jpg'
-import avatar3 from '../assets/avatar3.jpg'
+import photo from '../assets/photo.jpg'
+import photo2 from '../assets/photo2.jpg'
+import photo3 from '../assets/photo3.jpg'
 import Header from '../components/Header'
 import { NavigationBar } from '../components/NavigationBar'
-import NavSettings from '../components/NavSettings'
 import { StatusUser } from '../components/StatusUser'
 
 export function Status ()  {
@@ -12,14 +11,14 @@ export function Status ()  {
       <Header sectionName={'Updates'}/>
 
       <section className='flex flex-col gap-6 px-4'>
-        <StatusUser name='Tu historia' time={'Hace 1 hora'} avatar={avatar}/>
+        <StatusUser name='Tu historia' time={'Hace 1 hora'} photo={photo}/>
 
         <h3>recent status</h3>
 
         <section className='flex flex-col gap-4 mb-15'>
-          <StatusUser name={'Juan Perez'} time={'03:33'} avatar={avatar}/>
-          <StatusUser name={'Maria Gomez'} time={'08:15'} avatar={avatar2}/>
-          <StatusUser name={'Carlos Ruiz'} time={'09:42'} avatar={avatar3}/>
+          <StatusUser name={'Juan Perez'} time={'03:33'} photo={photo}/>
+          <StatusUser name={'Maria Gomez'} time={'08:15'} photo={photo2}/>
+          <StatusUser name={'Carlos Ruiz'} time={'09:42'} photo={photo3}/>
         </section>
       </section>
       <div className='md:hidden'><NavigationBar/></div>

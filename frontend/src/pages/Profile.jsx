@@ -1,8 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import avatar from "../assets/avatar.jpg";
-import avatar2 from "../assets/avatar2.jpg";
-import avatar3 from "../assets/avatar3.jpg";
+import photo from "../assets/photo.jpg";
+import photo2 from "../assets/photo2.jpg";
+import photo3 from "../assets/photo3.jpg";
+import photo4 from "../assets/photo4.jpg";
+import photo5 from "../assets/photo5.jpeg";
+import photo6 from "../assets/photo6.jpg";
+import photo7 from "../assets/photo7.jpg";
+import photo8 from "../assets/photo8.jpg";
+import photo9 from "../assets/photo9.jpg";
+import photo10  from "../assets/photo10.jpg";
+import photo11 from "../assets/photo11.jpg";
+import photo12 from "../assets/photo12.jpg";
+import photo13 from "../assets/photo13.jpg";
 import { NavigationBar } from "../components/NavigationBar";
 import { Posts } from "../components/Posts";
 import FollowComponent from "../components/FollowComponent";
@@ -11,11 +21,9 @@ import ModalEditProfile from "../components/ModalEditProfile";
 export function Profile() {
   const navigate = useNavigate()
   const [showModalFollows, setShowModalFollows] = useState(false)
-  const [showModalLogOut, setShowModalLogOut] = useState(false)
-
 
   return (
-    <div className="w-full md:w-xl h-screen md:h-[90vh] px-4 flex flex-col gap-5 bg-neutral-900">
+    <div className="w-full md:w-xl h-full md:h-[90vh] px-4 flex flex-col gap-5 bg-neutral-900">
       <nav>
         <ul className="flex justify-between items-center border-b-2 border-gray-200">
           <li className="flex items-center gap-2">
@@ -28,7 +36,7 @@ export function Profile() {
 
       <section className="flex items-center w-full gap-5 ">
         <img
-          src={avatar}
+          src={photo}
           alt=""
           width="80px"
           className="rounded-full min-w-[80px] h-[80px] object-cover"
@@ -57,17 +65,27 @@ export function Profile() {
       <p className="text-white text-sm">Desarrollador web y móvil | React, React Native, Node.js, MongoDB, SQL, HTML, CSS, JavaScript | Colombia</p>
 
 
-      <section className="w-full flex justify-between">
-        <ModalEditProfile avatar={avatar} name={'Santiago'} username={'santiagomorillodev'} pronouns={'He'} bio={'Desarrollador web y móvil | React, React Native, Node.js, MongoDB, SQL, HTML, CSS, JavaScript | Colombia'} gender={'Male'}/>
+      <section className="w-full flex justify-between ">
+        <ModalEditProfile photo={photo} name={'Santiago'} username={'santiagomorillodev'} pronouns={'He'} bio={'Desarrollador web y móvil | React, React Native, Node.js, MongoDB, SQL, HTML, CSS, JavaScript | Colombia'} gender={'Male'}/>
         <p className="py-1 px-10 bg-gray-100 dark:bg-neutral-600 rounded-sm cursor-pointer">
           New post
         </p>
       </section>
 
-      <section className="grid grid-cols-3 gap-1">
-        <Posts imagePost={avatar} />
-        <Posts imagePost={avatar2} />
-        <Posts imagePost={avatar3} />
+      <section className="grid grid-cols-3 gap-1 overflow-y-auto scroll-hidden pb-20">
+        <Posts imagePost={photo} />
+        <Posts imagePost={photo2} />
+        <Posts imagePost={photo3} />
+        <Posts imagePost={photo4} />
+        <Posts imagePost={photo5} />
+        <Posts imagePost={photo6} />
+        <Posts imagePost={photo7} />
+        <Posts imagePost={photo8} />
+        <Posts imagePost={photo9} />
+        <Posts imagePost={photo10} />
+        <Posts imagePost={photo11} />
+        <Posts imagePost={photo12} />
+        <Posts imagePost={photo13} />
       </section>
       <div className="md:hidden">
         <NavigationBar /> 
@@ -91,18 +109,18 @@ export function Profile() {
           </div>
           <section className=" overflow-y-auto ">
             <div className="flex flex-col gap-2">
-              <FollowComponent avatar={avatar}/>
-              <FollowComponent avatar={avatar2}/>
-              <FollowComponent avatar={avatar3}/>
-              <FollowComponent avatar={avatar}/>
-              <FollowComponent avatar={avatar2}/>
-              <FollowComponent avatar={avatar3}/>
-              <FollowComponent avatar={avatar}/>
-              <FollowComponent avatar={avatar2}/>
-              <FollowComponent avatar={avatar3}/>
-              <FollowComponent avatar={avatar}/>
-              <FollowComponent avatar={avatar2}/>
-              <FollowComponent avatar={avatar3}/>
+              <FollowComponent photo={photo}/>
+              <FollowComponent photo={photo2}/>
+              <FollowComponent photo={photo3}/>
+              <FollowComponent photo={photo}/>
+              <FollowComponent photo={photo2}/>
+              <FollowComponent photo={photo3}/>
+              <FollowComponent photo={photo}/>
+              <FollowComponent photo={photo2}/>
+              <FollowComponent photo={photo3}/>
+              <FollowComponent photo={photo}/>
+              <FollowComponent photo={photo2}/>
+              <FollowComponent photo={photo3}/>
             </div>
           </section>
         </div>

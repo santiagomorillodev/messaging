@@ -7,7 +7,7 @@ export default function UpdatePassword() {
     <>
       <nav>
         <ul className="flex justify-between items-center border-b border-neutral-600">
-          <li className="flex items-center gap-2"><button onClick={()=> navigate(-1)}><i className="bx  bx-chevron-left text-blue-400 text-4xl cursor-pointer"></i></button></li>
+          <li className="flex items-center gap-2 md:invisible"><button onClick={()=> navigate(-1)}><i className="bx  bx-chevron-left text-blue-400 text-4xl cursor-pointer"></i></button></li>
           <li><p className="font-bold text-xl">Update password</p></li>
             <li><p className="p-2"></p></li>
         </ul>
@@ -62,7 +62,9 @@ export default function UpdatePassword() {
         </div>
       </main>
 
-      <NavigationBar />
+      <div className="md:hidden">
+        <NavigationBar />
+      </div>
     </>
   )
 }

@@ -7,7 +7,7 @@ export default function UpdateEmail() {
         <>
             <nav>
                 <ul className="flex justify-between items-center border-b border-neutral-600">
-                    <li className="flex items-center gap-2">
+                    <li className="flex items-center gap-2 md:invisible">
                         <button onClick={() => navigate(-1)}>
                             <i className="bx bx-chevron-left text-blue-400 text-4xl cursor-pointer"></i>
                         </button>
@@ -70,7 +70,9 @@ export default function UpdateEmail() {
                 </div>
             </main>
 
-            <NavigationBar />
+            <div className="md:hidden">
+                <NavigationBar />
+            </div>
         </>
     );
 }
