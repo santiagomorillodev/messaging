@@ -20,7 +20,7 @@ export default function Likes() {
   const navigate = useNavigate()
   return (
     <section className="overflow-y-auto scroll-hidden md:transition-all md:duration-300">
-      <header className='mb-4 '>
+      <header className='mb-4 md:hidden '>
         <ul className="flex justify-between items-center px-4 py-2 border-b border-neutral-600">
           <li><i className='bx  bx-chevron-left text-blue-400 text-4xl cursor-pointer md:invisible' onClick={() => navigate(-1)}></i></li>
           <li className='font-bold text-xl text-black dark:text-white'><p className='font-bold'>Likes</p></li>
@@ -28,7 +28,7 @@ export default function Likes() {
         </ul>
       </header>
 
-      <main className="grid grid-cols-3  gap-1 px-4 pb-20 md:h-36 ">
+      <main className="grid grid-cols-3  gap-1 px-4 pb-20  ">
         <Posts imagePost={photo} />
         <Posts imagePost={photo2} />
         <Posts imagePost={photo3} />

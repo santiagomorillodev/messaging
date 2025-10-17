@@ -1,15 +1,15 @@
-import { ChatSummary } from "../components/ChatSummary";
 import { NavigationBar } from "../components/NavigationBar";
 import photo from '../assets/photo.jpg'
-import photo2 from '../assets/photo2.jpg'
-import photo3 from '../assets/photo3.jpg'
 import NavSettingsDesktop from "../components/Desktop/NavSettingsDesktop";
 import ProfileDesktop from "../components/Desktop/ProfileDesktop";
 import { Chat } from "./Chat";
 import { Outlet } from "react-router-dom";
-import { Inbox } from "./Inbox";
+import { useDesktopView } from "../context/DesktopViewContext";
+import StatusCarousel from "../components/StatusCarrusel";
+
 
 export default function Desktop() {
+  const { activeView, viewData, resetView } = useDesktopView()
   return (
     <div className="h-screen w-full flex flex-col">
 
@@ -27,8 +27,16 @@ export default function Desktop() {
           </div>
         </section>
         <Outlet/>
-        <Chat/>
+        {activeView === 'default' && <DefaultView />}
+        {activeView === 'chat' && <Chat/>}
+        {activeView === 'status' && <StatusCarousel/>}
       </main>
     </div>
   )
+}
+
+function DefaultView() {
+  return (
+      <div className='w-full h-screen md:h-full bg-neutral-800 flex flex-col overflow-hidden'></div>
+    )
 }
