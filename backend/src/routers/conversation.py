@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends, WebSocket, WebSocketDisconnect
 from models import UserModel, ConversationModel, MessageModel
-from schemas import UserConversation
+from schemas import UserConversation, ConversationOut
 from sqlalchemy import or_, desc
 from sqlalchemy.orm import Session
 from config import get_db
@@ -103,7 +103,25 @@ def get_all_conversation(current_user:UserModel = Depends(get_current_user), db:
                 detail='Conversations not found'
             )
         
-        return conversations
+        list_conversations: list[ConversationOut] = [ConversationOut.from_orm(conv) for conv in conversations]
+        new_conversations = []
+        for conv in list_conversations:
+            if conv.first_user_id == current_user.id:
+                conversation = {
+                    'id': conv.id,
+                    'user': conv.second_user_id,
+                    'created': conv.created
+                }
+                new_conversations.append(conversation)
+            else:
+                conversation = {
+                    'id': conv.id,
+                    'user': conv.first_user_id,
+                    'created': conv.created
+                }
+                new_conversations.append(conversation)
+        
+        return new_conversations
 
     except ValueError as error:
         print(error)

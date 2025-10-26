@@ -36,22 +36,39 @@ export function Chat() {
 
 
 useEffect(() => {
-  if (!socket) return;
+  if (!loading && messages.length > 0) {
+    setLiveMessages(messages);
+  }
+}, [loading, messages]);
+
+
+// 🔹 Este es el de los mensajes en tiempo real
+useEffect(() => {
+  if (!socket || !chatId) return;
 
   const handleNewMessage = (event) => {
     const data = event.detail;
+
+    // Verifica que el mensaje pertenece al chat actual
+    if (data.conversation_id !== chatId) return;
+
     console.log("📩 Mensaje recibido en Chat.jsx:", data);
 
-    // 🔹 Evitar duplicados
     setLiveMessages((prev) => {
-      const alreadyExists = prev.some((msg) => msg.id === data.id);
-      return alreadyExists ? prev : [...prev, data];
+      const exists = prev.some(
+        (msg) =>
+          msg.content === data.content &&
+          msg.sender_id === data.sender_id &&
+          msg.conversation_id === data.conversation_id
+      );
+      return exists ? prev : [...prev, data];
     });
   };
 
   window.addEventListener("new-message", handleNewMessage);
   return () => window.removeEventListener("new-message", handleNewMessage);
 }, [socket, chatId]);
+
 
   
 
@@ -112,7 +129,8 @@ useEffect(() => {
 
 
 
-  const allMessages = [...messages, ...liveMessages];
+  const allMessages = liveMessages;
+
 
   return (
     <div className="w-full h-screen md:h-full bg-neutral-900 flex flex-col overflow-hidden">
@@ -139,7 +157,7 @@ useEffect(() => {
         {allMessages.length > 0 ? (
           allMessages.map((message, idx) => (
             <MessageContainer
-              key={idx}
+              key={`${message.created_at}-${message.sender_id}-${idx}`}
               contenido={message.content}
               sender={currentUser.id === message.sender_id}
             />

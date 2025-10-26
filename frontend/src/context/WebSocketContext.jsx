@@ -7,7 +7,6 @@ export const WebSocketProvider = ({ children }) => {
   const { currentUser } = useGetCurrentUser();
   const [socket, setSocket] = useState(null);
 
-  console.log("WebSocketProvider renderizado, currentUser:", currentUser);
 
   useEffect(() => {
     if (!currentUser) {

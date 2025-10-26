@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { ChatSummary } from '../components/ChatSummary';
 import Header from '../components/Header';
 import { NavigationBar } from '../components/NavigationBar';
@@ -8,28 +8,32 @@ import useGetCurrentUser from '../hooks/useGetCurrentUser';
 export function Inbox() {
   const { conversations } = GetAllConversation();
   const { currentUser } = useGetCurrentUser();
-
-  // 👇 Copia local que se actualiza sin refetch
+  
+  // ✅ Estado local para controlar si ya cargó las conversaciones
   const [localConversations, setLocalConversations] = useState([]);
+  const hasInitialized = useRef(false); // evita renderizados duplicados
 
-  // 🔹 Cuando llegan las conversaciones iniciales, sincronízalas
+  // 🔹 Solo inicializa una vez con los datos del backend
   useEffect(() => {
-    if (conversations) setLocalConversations(conversations);
+    if (conversations && !hasInitialized.current) {
+      setLocalConversations(conversations);
+      hasInitialized.current = true;
+    }
   }, [conversations]);
 
-  // 🔹 Escucha nuevos mensajes globalmente
+  // 🔹 Escuchar nuevos mensajes sin causar refetch
   useEffect(() => {
     const handleNewMessage = (event) => {
       const msg = event.detail;
+      if (!msg || !msg.conversation_id) return;
+
       console.log("📩 Nuevo mensaje recibido en Inbox:", msg);
 
       setLocalConversations((prev) => {
-        // Ver si la conversación ya existe
         const exists = prev.some((c) => c.id === msg.conversation_id);
         let updated;
 
         if (exists) {
-          // Actualiza la conversación existente (último mensaje y fecha)
           updated = prev.map((c) =>
             c.id === msg.conversation_id
               ? {
@@ -40,20 +44,19 @@ export function Inbox() {
               : c
           );
         } else {
-          // Si es una conversación nueva (poco común), agrégala
+          // Si es una conversación nueva (poco común)
           updated = [
             ...prev,
             {
               id: msg.conversation_id,
+              user: msg.sender_id === currentUser.id ? msg.receiver_id : msg.sender_id,
               last_message: msg.content,
               updated_at: msg.created_at,
-              first_user_id: msg.sender_id,
-              second_user_id: currentUser?.id,
             },
           ];
         }
 
-        // Ordena las conversaciones por último mensaje
+        // 🔹 Ordenar por la más reciente
         return updated.sort(
           (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
         );
@@ -64,6 +67,7 @@ export function Inbox() {
     return () => window.removeEventListener("new-message", handleNewMessage);
   }, [currentUser]);
 
+  // 🔹 Render base
   if (!localConversations?.length) {
     return (
       <section className='md:min-w-[385px] border-r border-neutral-500 overflow-y-auto scroll-hidden'>
@@ -92,13 +96,8 @@ export function Inbox() {
           {localConversations.map((conversation) => (
             <ChatSummary
               key={conversation.id}
-              idUser={
-                conversation.first_user_id === currentUser?.id
-                  ? conversation.second_user_id
-                  : conversation.first_user_id
-              }
+              idUser={conversation.user}
               conversationId={conversation.id}
-              // 👇 pasa el último mensaje al ChatSummary
               lastMessage={conversation.last_message}
               updatedAt={conversation.updated_at}
             />
