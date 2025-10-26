@@ -1,36 +1,116 @@
-import photo from "../assets/photo.jpg";
-import photo2 from "../assets/photo2.jpg";
-import photo3 from "../assets/photo3.jpg";
-import { ChatSummary } from '../components/ChatSummary'
-import Header from '../components/Header'
-import { NavigationBar } from '../components/NavigationBar'
+import { useEffect, useState } from 'react';
+import { ChatSummary } from '../components/ChatSummary';
+import Header from '../components/Header';
+import { NavigationBar } from '../components/NavigationBar';
+import GetAllConversation from "../hooks/GetAllConversation";
+import useGetCurrentUser from '../hooks/useGetCurrentUser';
 
+export function Inbox() {
+  const { conversations } = GetAllConversation();
+  const { currentUser } = useGetCurrentUser();
 
-export function Inbox ()  {
-    
-  return (
+  // 👇 Copia local que se actualiza sin refetch
+  const [localConversations, setLocalConversations] = useState([]);
 
-  <section className='md:min-w-[385px] border-r border-neutral-500 overflow-y-auto scroll-hidden'>
-    <Header sectionName={'Chats'}/>
+  // 🔹 Cuando llegan las conversaciones iniciales, sincronízalas
+  useEffect(() => {
+    if (conversations) setLocalConversations(conversations);
+  }, [conversations]);
 
-    <main className="bg-white dark:bg-neutral-900 md:dark:bg-neutral-800 w-full flex flex-col gap-5 md:gap-0 mb-15 md:mb-0 ">
-      <div className="mt-3 flex justify-center px-4">
-        <input type="text" name="" id="" placeholder="Search for people" className="bg-gray-100 dark:bg-neutral-700 text-black dark:text-white p-2 rounded-2xl w-full outline-0"/>
-      </div>
-      <section className='md:pt-3 overflow-y-auto scroll-hidden'>
-        <ChatSummary id={1} name='Laura' content='¡Hola Pedro! ¿Cómo va todo?' time='09:00' photo={photo} />
-        <ChatSummary id={2} name='Carlos' content='¿Listo para la reunión de hoy?' time='10:15' photo={photo2} />
-        <ChatSummary id={3} name='Ana' content='¡Buen trabajo en el reporte!' time='11:30' photo={photo3} />
+  // 🔹 Escucha nuevos mensajes globalmente
+  useEffect(() => {
+    const handleNewMessage = (event) => {
+      const msg = event.detail;
+      console.log("📩 Nuevo mensaje recibido en Inbox:", msg);
+
+      setLocalConversations((prev) => {
+        // Ver si la conversación ya existe
+        const exists = prev.some((c) => c.id === msg.conversation_id);
+        let updated;
+
+        if (exists) {
+          // Actualiza la conversación existente (último mensaje y fecha)
+          updated = prev.map((c) =>
+            c.id === msg.conversation_id
+              ? {
+                  ...c,
+                  last_message: msg.content,
+                  updated_at: msg.created_at,
+                }
+              : c
+          );
+        } else {
+          // Si es una conversación nueva (poco común), agrégala
+          updated = [
+            ...prev,
+            {
+              id: msg.conversation_id,
+              last_message: msg.content,
+              updated_at: msg.created_at,
+              first_user_id: msg.sender_id,
+              second_user_id: currentUser?.id,
+            },
+          ];
+        }
+
+        // Ordena las conversaciones por último mensaje
+        return updated.sort(
+          (a, b) => new Date(b.updated_at) - new Date(a.updated_at)
+        );
+      });
+    };
+
+    window.addEventListener("new-message", handleNewMessage);
+    return () => window.removeEventListener("new-message", handleNewMessage);
+  }, [currentUser]);
+
+  if (!localConversations?.length) {
+    return (
+      <section className='md:min-w-[385px] border-r border-neutral-500 overflow-y-auto scroll-hidden'>
+        <Header sectionName={'Chats'} />
+        <main className="bg-white dark:bg-neutral-900 md:dark:bg-neutral-800 w-full flex flex-col gap-5 md:gap-0 mb-15 md:mb-0">
+          <p className="text-center mt-4 text-neutral-400">No tienes conversaciones aún</p>
+        </main>
       </section>
-    </main>
+    );
+  }
 
-    <nav>
-      <div className='md:hidden'>
-        <NavigationBar/>
-      </div>
-    </nav>
+  return (
+    <section className='md:min-w-[385px] border-r border-neutral-500 overflow-y-auto scroll-hidden'>
+      <Header sectionName={'Chats'} />
 
-  </section>
+      <main className="bg-white dark:bg-neutral-900 md:dark:bg-neutral-800 w-full flex flex-col gap-5 md:gap-0 mb-15 md:mb-0 ">
+        <div className="mt-3 flex justify-center px-4">
+          <input
+            type="text"
+            placeholder="Search for people"
+            className="bg-gray-100 dark:bg-neutral-700 text-black dark:text-white p-2 rounded-2xl w-full outline-0"
+          />
+        </div>
 
-  )
+        <section className='md:pt-3 overflow-y-auto scroll-hidden'>
+          {localConversations.map((conversation) => (
+            <ChatSummary
+              key={conversation.id}
+              idUser={
+                conversation.first_user_id === currentUser?.id
+                  ? conversation.second_user_id
+                  : conversation.first_user_id
+              }
+              conversationId={conversation.id}
+              // 👇 pasa el último mensaje al ChatSummary
+              lastMessage={conversation.last_message}
+              updatedAt={conversation.updated_at}
+            />
+          ))}
+        </section>
+      </main>
+
+      <nav>
+        <div className='md:hidden'>
+          <NavigationBar />
+        </div>
+      </nav>
+    </section>
+  );
 }

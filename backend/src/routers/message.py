@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from models import MessageModel, UserModel, ConversationModel
 from schemas import MessageDelete, MessageCreate, MessageRead, MessageRequest, MessageResponse, ConversationRequest
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from config import get_db
 from security import get_current_user
 
@@ -45,24 +46,29 @@ def create_message(message: MessageCreate, current_user:UserModel = Depends(get_
     except ValueError as error:
         print(error)
         
-@root.get('/', response_model=list[MessageResponse])
-def get_messages(conversation: ConversationRequest, current_user:UserModel = Depends(get_current_user), db:Session = Depends(get_db)):
+@root.get('/chat/{id}', response_model=list[MessageResponse])
+def get_messages(id: int, current_user:UserModel = Depends(get_current_user), db:Session = Depends(get_db)):
     try: 
-        conversation_db = db.query(ConversationModel).filter(ConversationModel.id == conversation.id).first()
+        conversation_db = db.query(ConversationModel).filter(ConversationModel.id == id).first()
         if not conversation_db:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='The conversations not exist'
             )
         
-        user = db.query(ConversationModel).filter(((ConversationModel.first_user_id == current_user.id)| (ConversationModel.second_user_id == current_user.id))).first()
+        user = db.query(ConversationModel).filter(or_((ConversationModel.first_user_id == current_user.id), (ConversationModel.second_user_id == current_user.id))).all()
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="You don't belong in that conversation."
             )
+            
+        print(id)
         
-        messages = db.query(MessageModel).filter(MessageModel.conversation_id == conversation.id).all()
+        messages = db.query(MessageModel).filter(MessageModel.conversation_id == id).all()
+        
+        print(messages)
+        
         
         return messages
     except ValueError as error:

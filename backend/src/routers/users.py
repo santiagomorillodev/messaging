@@ -1,11 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from schemas import UserCreate, UserRead, UserDeleteRequest, UserUpdate
-from models import UserModel, FollowerModel
-from utils import get_user_email, get_by_username, verify_follow
+from schemas import UserCreate, UserRead, UserDeleteRequest, UserUpdate, UserLikes
+from models import UserModel, FollowerModel, LikeModel
+from utils import get_user_email, get_by_username, verify_follow, get_user_by_id
 from config import get_db
 from security import hash_password, verify_password, create_access_token, get_current_user
+
+
 
 root = APIRouter(tags=['Users'])
 
@@ -54,7 +57,19 @@ def login(data:OAuth2PasswordRequestForm = Depends(), db:Session = Depends(get_d
             )
             
         token = create_access_token({'sub': user_db.username, 'id': user_db.id})
-        return {'access_token': token, 'token_type': 'bearer'}
+        
+        response = JSONResponse(content={'message': 'Login successful'})
+        response.set_cookie(
+            key='access_token',
+            value=token,
+            httponly=False,
+            samesite='lax',
+            secure=False,
+            max_age=1800,
+            expires=1800
+        )
+        print(response)
+        return response
     
     except ValueError as error:
         print(error)
@@ -64,11 +79,10 @@ def get_users(db: Session = Depends(get_db)):
     users = db.query(UserModel).all()
     return users
 
-@root.get('/username')
-def get_user_by_username(username:str, db:Session = Depends(get_db)):
+@root.get('/id/{id}')
+def get_user_by_username(id:int, db:Session = Depends(get_db)):
     try:
-        user = get_by_username(db, username)
-        
+        user = get_user_by_id(db, id)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -187,4 +201,53 @@ def unfollow(followed: int, current_user: UserModel = Depends(get_current_user),
     except ValueError as error:
         print(error)
 
+
+@root.get('/likes')
+async def get_likes(user: UserModel = Depends(get_current_user)):
+    try:
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail='Invalid credentials'
+            )
+        
+        return user.likes
+    except ValueError as e:
+        print(e)
+
+
+@root.post('/post/likes')
+async def toggle_likes(post: UserLikes ,user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
+    try:
+        post_db = db.query(LikeModel).filter(LikeModel.id == post.id).first()
+        if not post_db:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='Post not found'
+            )
+        
+        exist_like = (
+            db.query(LikeModel)
+            .filter(LikeModel.user_id == user.id, LikeModel.post_id == post.id)
+            .first()
+        )
+        
+        if exist_like:
+            db.delete(exist_like)
+            db.commit()
+            return 'Dislike'
+        else:
+            new_like = LikeModel(
+                user_id = user.id,
+                post_id = post.id
+            )
+            db.add(new_like)
+            db.commit()
+        
+        return 'Like'
+    except ValueError as e:
+        print(e)
+        
+
+    
 # Santiago1$

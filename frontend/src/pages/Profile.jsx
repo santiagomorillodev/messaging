@@ -1,34 +1,42 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import photo from "../assets/photo.jpg";
 import photo2 from "../assets/photo2.jpg";
 import photo3 from "../assets/photo3.jpg";
-import photo4 from "../assets/photo4.jpg";
-import photo5 from "../assets/photo5.jpeg";
-import photo6 from "../assets/photo6.jpg";
-import photo7 from "../assets/photo7.jpg";
-import photo8 from "../assets/photo8.jpg";
-import photo9 from "../assets/photo9.jpg";
-import photo10  from "../assets/photo10.jpg";
-import photo11 from "../assets/photo11.jpg";
-import photo12 from "../assets/photo12.jpg";
-import photo13 from "../assets/photo13.jpg";
 import { NavigationBar } from "../components/NavigationBar";
 import { Posts } from "../components/Posts";
 import FollowComponent from "../components/FollowComponent";
 import ModalEditProfile from "../components/ModalEditProfile";
+import useGetCurrentUser from "../hooks/useGetCurrentUser";
 
 export function Profile() {
   const navigate = useNavigate()
   const [showModalFollows, setShowModalFollows] = useState(false)
+  const {currentUser, loading, error} = useGetCurrentUser();
 
+  if (loading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center text-white">
+        Loading profile...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center text-red-400">
+        Error loading user.
+      </div>
+    );
+  }
+  console.log(currentUser)
   return (
     <div className="w-full md:w-xl h-full md:h-[90vh] px-4 flex flex-col gap-5 bg-neutral-900">
       <nav>
         <ul className="flex justify-between items-center border-b-2 border-gray-200">
           <li className="flex items-center gap-2">
             <button onClick={()=> navigate(-1)}><i className="bx  bx-chevron-left text-blue-400 text-4xl cursor-pointer md:hidden"></i></button>
-            <p className="font-bold">@santiagomorillodev</p>
+            <p className="font-bold">{currentUser['username']}</p>
           </li>
           <li><p className="p-2"></p></li>
         </ul>
@@ -36,13 +44,13 @@ export function Profile() {
 
       <section className="flex items-center w-full gap-5 ">
         <img
-          src={photo}
+          src={currentUser['avatar_url']}
           alt=""
           width="80px"
           className="rounded-full min-w-[80px] h-[80px] object-cover"
         />
         <div className="flex flex-col gap-1">
-          <p>santiago Morillo</p>
+          <p>{currentUser['name']}</p>
           <div className="w-full">
             <ul className=" flex justify-between">
               <li className="p-2">
@@ -74,18 +82,7 @@ export function Profile() {
 
       <section className="grid grid-cols-3 gap-1 overflow-y-auto scroll-hidden pb-20">
         <Posts imagePost={photo} />
-        <Posts imagePost={photo2} />
-        <Posts imagePost={photo3} />
-        <Posts imagePost={photo4} />
-        <Posts imagePost={photo5} />
-        <Posts imagePost={photo6} />
-        <Posts imagePost={photo7} />
-        <Posts imagePost={photo8} />
-        <Posts imagePost={photo9} />
-        <Posts imagePost={photo10} />
-        <Posts imagePost={photo11} />
-        <Posts imagePost={photo12} />
-        <Posts imagePost={photo13} />
+        
       </section>
       <div className="md:hidden">
         <NavigationBar /> 

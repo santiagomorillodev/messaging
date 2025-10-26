@@ -8,9 +8,10 @@ class UserModel(Base):
     name = Column(String(50), nullable=False)
     age = Column(Integer, nullable=False)
     username = Column(String(50), nullable=False, unique=True)
+    description = Column(String(100), nullable=True)
     email = Column(String(100), nullable=False, unique=True)
     password = Column(String(100), nullable=False)
-    avatar_url = Column(Text, nullable=True, default=None)
+    avatar_url = Column(String(512), nullable=True, default='https://res.cloudinary.com/dyteo3qdh/image/upload/v1760837715/usuario_yrdfvf.png')
     created = Column(DateTime(timezone=True), server_default=func.now())
     
     __table_args__ = (
@@ -25,3 +26,4 @@ class UserModel(Base):
     following = relationship('FollowerModel', foreign_keys='FollowerModel.follower_id', back_populates='follower')
     followers = relationship('FollowerModel', foreign_keys='FollowerModel.followed_id', back_populates='followed')
     images = relationship('ImageModel', back_populates='user')
+    likes = relationship("LikeModel", back_populates="user", cascade="all, delete")

@@ -14,6 +14,9 @@ class MessageModel(Base):
     __table_args__ = (
         CheckConstraint('length(content) >= 1', name='the content is very short'),
     )
+    
+    def __repr__(self):
+        return f"<Message(id={self.message_id}, sender={self.sender_id}, conversation={self.conversation_id}, content='{self.content}')>"
 
     conversation = relationship('ConversationModel', back_populates='messages')
     sender = relationship('UserModel', back_populates='messages', foreign_keys=[sender_id])

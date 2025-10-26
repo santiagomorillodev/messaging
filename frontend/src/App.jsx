@@ -15,6 +15,7 @@ import UpdatePassword from './pages/UpdatePassword.jsx'
 import UpdateEmail from './pages/UpdateEmail.jsx'
 import DesktopLayout from './pages/Desktop.jsx'
 import { DesktopViewProvider } from './context/DesktopViewContext.jsx'
+import { WebSocketProvider } from './context/WebSocketContext.jsx'
 
 
 function App() {
@@ -52,33 +53,32 @@ function App() {
 
   return (
     <main className="bg-white dark:bg-neutral-900 text-black dark:text-white min-h-screen transition-colors">
-      <Routes>
-        
-        <Route path='/login' element={<Login />} />
-        <Route path='/register' element={<Register />} />
-        <Route path='/' element={<Inbox toggleDarkMode={toggleDarkMode} />} />
-        <Route path='/settings' element={<Settings />} />
-        <Route path='/direct' element={<Chat />} />
-        <Route path='/profile' element={<Profile />} />
-        <Route path='/status' element={<Status />} />
-        <Route path='/notification' element={<Bell />} />
-        <Route path='/search' element={<SearchPage />} />
-        <Route path='/likes' element={<Likes />} />
-        <Route path='/update/password' element={<UpdatePassword />} />
-        <Route path='/update/email' element={<UpdateEmail />} />
+      <WebSocketProvider>
+        <Routes>
+          <Route path='/login' element={<Login />} />
+          <Route path='/register' element={<Register />} />
+          <Route path='/' element={<Inbox toggleDarkMode={toggleDarkMode} />} />
+          <Route path='/settings' element={<Settings />} />
+          <Route path='/direct' element={<Chat />} />
+          <Route path='/profile' element={<Profile />} />
+          <Route path='/status' element={<Status />} />
+          <Route path='/notification' element={<Bell />} />
+          <Route path='/search' element={<SearchPage />} />
+          <Route path='/likes' element={<Likes />} />
+          <Route path='/update/password' element={<UpdatePassword />} />
+          <Route path='/update/email' element={<UpdateEmail />} />
 
-        <Route path='/desktop/*' element={<DesktopViewProvider><DesktopLayout /></DesktopViewProvider>}>
-          <Route index element={<Inbox />} />
-          <Route path='chat/:id' element={<Chat />} />
-          <Route path='profile/:username' element={<Profile />} />
-          <Route path='search' element={<SearchPage />} />
-          <Route path='notification' element={<Bell />} />
-          <Route path='status' element={<Status />} />
-        </Route>
-
-
-        <Route path='*' element={<NotFound />} />
-      </Routes>
+          <Route path='/desktop/*' element={<DesktopViewProvider><DesktopLayout /></DesktopViewProvider>}>
+            <Route index element={<Inbox />} />
+            <Route path='chat/:id' element={<Chat />} />
+            <Route path='profile/:username' element={<Profile />} />
+            <Route path='search' element={<SearchPage />} />
+            <Route path='notification' element={<Bell />} />
+            <Route path='status' element={<Status />} />
+          </Route>
+          <Route path='*' element={<NotFound />} />
+        </Routes>
+      </WebSocketProvider>
     </main>
   )
 }

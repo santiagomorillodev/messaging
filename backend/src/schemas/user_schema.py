@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr, validator
 from typing import Optional
 import re
+from datetime import datetime
 
 class UserBase(BaseModel):
     name: str
@@ -25,8 +26,11 @@ class UserCreate(UserBase):
         return v
 
 class UserRead(UserBase):
+    id: int
     email: EmailStr
     avatar_url:Optional[str] = None
+    description:Optional[str] = None
+    created: datetime
 
 
 class UserLogin(BaseModel):
@@ -45,7 +49,10 @@ class UserUpdate(BaseModel):
     username: Optional[str] = None
     email: Optional[EmailStr] = None
     password: Optional[str] = None
+    description : Optional[str] = None
 
 class UserConversation(BaseModel):
     id: int
-    
+
+class UserLikes(BaseModel):
+   id : int

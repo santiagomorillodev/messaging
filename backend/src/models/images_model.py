@@ -10,3 +10,4 @@ class ImageModel(Base):
     url = Column(Text, nullable=False)
 
     user = relationship('UserModel', back_populates='images')
+    likes = relationship("LikeModel", back_populates="post", cascade="all, delete")
