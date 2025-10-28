@@ -11,7 +11,7 @@ export default function NavSettings() {
       document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       if (socket) socket.close(); // 👈 Cierra el WebSocket global
       setCurrentUserFunction(null); // o como manejes tu auth
-      navigate("/login");
+      navigate("/");
       console.log("Logged out successfully");
     };
   return (

@@ -4,3 +4,4 @@ from .follower_model import FollowerModel
 from .message_model import MessageModel
 from.images_model import ImageModel
 from .likes_model import LikeModel
+from .recent_search_model import RecentModel

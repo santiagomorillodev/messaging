@@ -19,11 +19,16 @@ class UserModel(Base):
         CheckConstraint('length(name) >= 3', name='the name is very short'),
         CheckConstraint('length(password) >= 8', name='the password is very short')
     )
+    
+    def __repr__(self):
+        return f"<Message(id={self.id}, username={self.username}, name={self.name}, email='{self.email}')>"
 
     conversation_first_user = relationship('ConversationModel', back_populates='first_user', foreign_keys='ConversationModel.first_user_id')
     conversation_second_user = relationship('ConversationModel', back_populates='second_user', foreign_keys='ConversationModel.second_user_id')
     messages = relationship('MessageModel', back_populates='sender')
     following = relationship('FollowerModel', foreign_keys='FollowerModel.follower_id', back_populates='follower')
     followers = relationship('FollowerModel', foreign_keys='FollowerModel.followed_id', back_populates='followed')
+    recent_Search = relationship('RecentModel', foreign_keys='RecentModel.user_id', back_populates='user')
+    other = relationship('RecentModel', foreign_keys='RecentModel.other_user', back_populates='second')
     images = relationship('ImageModel', back_populates='user')
     likes = relationship("LikeModel", back_populates="user", cascade="all, delete")

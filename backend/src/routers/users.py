@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from schemas import UserCreate, UserRead, UserDeleteRequest, UserUpdate, UserLikes
-from models import UserModel, FollowerModel, LikeModel
+from models import UserModel, FollowerModel, LikeModel, RecentModel
 from utils import get_user_email, get_by_username, verify_follow, get_user_by_id
 from config import get_db
 from security import hash_password, verify_password, create_access_token, get_current_user
@@ -95,7 +95,7 @@ def get_user(id:int, db:Session = Depends(get_db)):
       
       
 @root.get('/search/username/{username}')
-def get_username(username:str, db:Session = Depends(get_db)):
+def get_username(username:str,current_user:UserModel = Depends(get_current_user), db:Session = Depends(get_db)):
     try:
         user = get_by_username(db, username)
         if not user:
@@ -104,10 +104,29 @@ def get_username(username:str, db:Session = Depends(get_db)):
                 detail={'message', 'User not found'}
             )
         
+        new_search = RecentModel(
+            user_id = current_user.id,
+            other_user = user.id
+        )
+        
+        db.add(new_search)
+        db.commit()
+        db.refresh(new_search)
+        
+        print(user)
+        
         return user
+    
     except ValueError as error:
         print(error)
       
+@root.get('/recent/search')
+def get_recent_search(user:UserModel = Depends(get_current_user), db:Session=Depends(get_db)):
+    try:
+        return user.other
+    except ValueError as e:
+        print(e)
+
 @root.get('/me', response_model=UserRead)
 def current_user(user:UserModel = Depends(get_current_user)):
     return user
