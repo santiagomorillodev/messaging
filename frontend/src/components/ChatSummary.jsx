@@ -5,12 +5,12 @@ import useGetUser from "../hooks/useGetUser";
 import Error from "./Error";
 import useGetLastMessage from "../hooks/useGetLastMessage";
 import { useEffect } from "react";
-import { useWebSocket } from "../context/WebSocketContext.jsx"; // ⬅️ importar socket global
+import { useWebSocket } from "../context/WebSocketContext.jsx";
 
 export const ChatSummary = ({ idUser, conversationId, content, time, refetchConversations }) => {
   const navigate = useNavigate();
   const isDesktop = useIsDesktop();
-  const socket = useWebSocket(); // ⬅️ usar socket global
+  const socket = useWebSocket();
 
   const { user, loading: userLoading, error: userError } = useGetUser(idUser);
   const { lastMessage, loading: lastLoading, error: lastError, reload: reloadLast } =
@@ -19,7 +19,12 @@ export const ChatSummary = ({ idUser, conversationId, content, time, refetchConv
   const loading = userLoading || lastLoading;
   const error = userError || lastError;
 
-  // 🧠 Escuchar los mensajes entrantes del socket global
+  let changeView = () => {};
+  try {
+    ({ changeView } = useDesktopView());
+  } catch {
+  }
+
   useEffect(() => {
     if (!socket) return;
 
@@ -27,14 +32,11 @@ export const ChatSummary = ({ idUser, conversationId, content, time, refetchConv
       const data = event.detail;
       const { conversation_id, content } = data;
 
-      // Solo actualiza si el mensaje pertenece a esta conversación
       if (conversation_id === conversationId) {
         console.log("📩 Actualizando ChatSummary:", conversation_id, content);
-        // Aquí puedes refrescar el último mensaje
         reloadLast();
       }
 
-      // Si quieres que el Inbox completo se actualice (últimos mensajes, orden, etc.)
       if (typeof refetchConversations === "function") {
         refetchConversations();
       }
@@ -63,12 +65,7 @@ export const ChatSummary = ({ idUser, conversationId, content, time, refetchConv
   const photo = user.avatar_url;
   const chatId = conversationId;
 
-  let changeView = () => {};
-  try {
-    ({ changeView } = useDesktopView());
-  } catch {
-    // Si falla el contexto, dejamos changeView como función vacía.
-  }
+  
 
   const handleClick = () => {
     if (isDesktop) {

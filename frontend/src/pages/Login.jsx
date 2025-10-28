@@ -20,7 +20,7 @@ export function Login () {
 
 		if (response.ok) {
 			const data = await response.json();
-			navigate('/')
+			navigate('/inbox')
 		} else{
 			console.error('Login failed')
 		}

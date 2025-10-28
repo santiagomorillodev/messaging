@@ -55,9 +55,9 @@ function App() {
     <main className="bg-second text-black dark:text-white min-h-screen transition-colors">
       <WebSocketProvider>
         <Routes>
-          <Route path='/login' element={<Login />} />
+          <Route path='/' element={<Login />} />
           <Route path='/register' element={<Register />} />
-          <Route path='/' element={<Inbox toggleDarkMode={toggleDarkMode} />} />
+          <Route path='/inbox' element={<Inbox toggleDarkMode={toggleDarkMode} />} />
           <Route path='/settings' element={<Settings />} />
           <Route path='/direct' element={<Chat />} />
           <Route path='/profile' element={<Profile />} />

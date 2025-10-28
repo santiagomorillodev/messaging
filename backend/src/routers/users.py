@@ -80,9 +80,24 @@ def get_users(db: Session = Depends(get_db)):
     return users
 
 @root.get('/id/{id}')
-def get_user_by_username(id:int, db:Session = Depends(get_db)):
+def get_user(id:int, db:Session = Depends(get_db)):
     try:
         user = get_user_by_id(db, id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={'message', 'User not found'}
+            )
+        
+        return user
+    except ValueError as error:
+        print(error)
+      
+      
+@root.get('/search/username/{username}')
+def get_username(username:str, db:Session = Depends(get_db)):
+    try:
+        user = get_by_username(db, username)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
