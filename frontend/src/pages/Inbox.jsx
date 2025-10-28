@@ -80,10 +80,10 @@ export function Inbox() {
   }
 
   return (
-    <section className='md:min-w-[385px] border-r border-neutral-500 overflow-y-auto scroll-hidden'>
+    <section className='md:min-w-[385px] border-r border-neutral-500 overflow-y-auto scroll-hidden bg-second'>
       <Header sectionName={'Chats'} />
 
-      <main className="bg-white dark:bg-neutral-900 md:dark:bg-neutral-800 w-full flex flex-col gap-5 md:gap-0 mb-15 md:mb-0 ">
+      <main className="bg-second md:dark:bg-neutral-800 w-full flex flex-col gap-5 md:gap-0 mb-15 md:mb-0 ">
         <div className="mt-3 flex justify-center px-4">
           <input
             type="text"
@@ -92,7 +92,7 @@ export function Inbox() {
           />
         </div>
 
-        <section className='md:pt-3 overflow-y-auto scroll-hidden'>
+        <section className='md:pt-3 overflow-y-auto scroll-hidden bg-second'>
           {localConversations.map((conversation) => (
             <ChatSummary
               key={conversation.id}

@@ -37,3 +37,34 @@
     background-color: #23272b; /* dark:hover:bg-neutral-800 */
   }
 }
+
+:root{
+  --color-first: #1e1e27;
+  --color-second: #131318;
+  --color-third: #362846;
+  --color-fourth: #2e2b4e;
+  --color-fifth: #4f3c58;
+  --color-sixth: #ab73c5;
+}
+
+
+
+/* clase utilitaria que puedes usar junto a utilidades Tailwind */
+.bg-first {
+  background-color: var(--color-first);
+}
+.bg-second {
+  background-color: var(--color-second);
+}
+.bg-third {
+  background-color: var(--color-third);
+}
+.bg-fourth {
+  background-color: var(--color-fourth);
+}
+.bg-fifth {
+  background-color: var(--color-fifth);
+}
+.bg-sixth {
+  background-color: var(--color-sixth);
+}

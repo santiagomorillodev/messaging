@@ -5,7 +5,7 @@ export default function ModalEditProfile({ photo , name, username, pronouns, bio
     const [showModalEditProfile, setShowModalEditProfile] = useState(false)
   return (
     <>
-        <button className="py-1 px-10 bg-gray-100 dark:bg-neutral-600 rounded-sm cursor-pointer " onClick={() => setShowModalEditProfile(true)}>Edit profile</button>
+        <button className="py-1 px-10 bg-fifth rounded-sm cursor-pointer " onClick={() => setShowModalEditProfile(true)}>Edit profile</button>
         {showModalEditProfile && (
               <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-10">
                 <div className="w-full md:w-xl h-[90%]  bg-white dark:bg-neutral-900 rounded-xl flex flex-col gap-2 overflow-y-auto scroll-hidden">

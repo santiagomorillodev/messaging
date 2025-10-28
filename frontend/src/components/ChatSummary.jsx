@@ -81,7 +81,7 @@ export const ChatSummary = ({ idUser, conversationId, content, time, refetchConv
   return (
     <div
       onClick={handleClick}
-      className="w-full flex items-center gap-2 bg-white dark:bg-neutral-900 md:dark:bg-neutral-800 dark:text-white px-4 py-2"
+      className="w-full flex items-center gap-2 bg-first md:dark:bg-neutral-800 dark:text-white px-4 py-2"
     >
       <img
         src={photo}

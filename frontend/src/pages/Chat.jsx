@@ -133,8 +133,8 @@ useEffect(() => {
 
 
   return (
-    <div className="w-full h-screen md:h-full bg-neutral-900 flex flex-col overflow-hidden">
-      <header className="flex justify-between items-center w-full bg-white dark:bg-neutral-800 p-2">
+    <div className="w-full h-screen md:h-full bg-second flex flex-col overflow-hidden">
+      <header className="flex justify-between items-center w-full bg-first p-2">
         <div
           onClick={resetView}
           className="flex items-center gap-2 cursor-pointer"
@@ -153,7 +153,7 @@ useEffect(() => {
         <i className="bx bx-phone text-4xl pr-6"></i>
       </header>
 
-      <main className="flex flex-col gap-3 py-4 pr-6 pl-3 bg-neutral-700 overflow-y-auto scroll-hidden flex-grow">
+      <main className="flex flex-col gap-3 py-4 pr-6 pl-3 bg-second overflow-y-auto scroll-hidden flex-grow">
         {allMessages.length > 0 ? (
           allMessages.map((message, idx) => (
             <MessageContainer
@@ -167,8 +167,8 @@ useEffect(() => {
         )}
       </main>
 
-      <footer className="bg-white w-full dark:bg-neutral-800 flex gap-2 items-center py-3 px-4 ">
-        <i className="bx bxs-camera text-2xl text-white bg-blue-400 rounded-full p-2"></i>
+      <footer className="bg-first w-full flex gap-2 items-center py-3 px-4 ">
+        <i className="bx bxs-camera text-2xl text-white bg-fourth rounded-full p-2"></i>
         <input
           ref={inputRef}
           type="text"
