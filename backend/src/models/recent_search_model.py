@@ -7,7 +7,11 @@ class RecentModel(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('Users.id'), nullable=False)
     other_user = Column(Integer, ForeignKey('Users.id'), nullable=False)
-    created = Column(DateTime(timezone=True), server_default=func.now())
+    created = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    
+    def __repr__(self):
+        return f"<Conversation(id={self.id}, userId={self.user_id}, otherUser={self.other_user}, created='{self.created}')>"
+    
 
     user = relationship(
         'UserModel',

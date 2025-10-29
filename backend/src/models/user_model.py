@@ -30,5 +30,5 @@ class UserModel(Base):
     followers = relationship('FollowerModel', foreign_keys='FollowerModel.followed_id', back_populates='followed')
     recent_Search = relationship('RecentModel', foreign_keys='RecentModel.user_id', back_populates='user')
     other = relationship('RecentModel', foreign_keys='RecentModel.other_user', back_populates='second')
-    images = relationship('ImageModel', back_populates='user')
+    posts = relationship('PostModel', back_populates='user')
     likes = relationship("LikeModel", back_populates="user", cascade="all, delete")

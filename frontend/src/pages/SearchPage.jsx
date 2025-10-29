@@ -1,42 +1,78 @@
-import photo from "../assets/photo.jpg";
-import photo2 from "../assets/photo2.jpg";
-import photo3 from "../assets/photo3.jpg";
 import UserSearchComponent from '../components/UserSearchComponent';
 import { NavigationBar } from '../components/NavigationBar';
 import Header from "../components/Header";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useSearchUser from "../hooks/useSearchUser";
+import useGetRecentSearch from "../hooks/useGetRecentSearch";
+
 export function SearchPage() {
-  const [data, setData] = useState('')
-  const {user, query, setQuery} = useSearchUser()
+  const [data, setData] = useState('');
+  const { user, query, setQuery } = useSearchUser();
+  const { recentSearch, setRecentSearch } = useGetRecentSearch(); // 👈 usamos el setter
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (data.trim() !== '') {
       setQuery(data);
     }
-  }
-  console.log(user, 'hello')
+  };
+
+  // 👇 Función para eliminar un usuario del estado localmente
+  const handleRemove = (id) => {
+    setRecentSearch((prev) => prev.filter((u) => u.id !== id));
+  };
+
   return (
-    <section className='border-r border-neutral-500 md:min-w-[385px]'>
-      <Header sectionName={'Search user'}/>
-      <form className='w-full flex items-center px-4 py-2 ' onSubmit={handleSubmit}>
-        <input type="text" aria-label="Search" value={data} placeholder='Search...' className='p-2 bg-neutral-600 w-full rounded-2xl outline-0' onChange={(e)=> setData(e.target.value)} autoComplete="off"/>
+    <section className="border-r border-neutral-500 md:min-w-[385px]">
+      <Header sectionName={"Search user"} />
+
+      <form className="w-full flex items-center px-4 py-2" onSubmit={handleSubmit}>
+        <input
+          type="text"
+          aria-label="Search"
+          value={data}
+          placeholder="Search..."
+          className="p-2 bg-neutral-600 w-full rounded-2xl outline-0"
+          onChange={(e) => setData(e.target.value)}
+          autoComplete="off"
+        />
         <button type="submit" className="sr-only">Search</button>
       </form>
 
-      <main className='mb-15'>
-        {query && <UserSearchComponent photo={user.avatar_url} name={user.name} username={`@${user.username}`}/>}
-        <p className='text-gray-400 text-sm px-4 py-2 font-bold'>Recent</p>
-        <section className='flex flex-col gap-3 border-b border-neutral-500 pb-3'>
-          <UserSearchComponent photo={photo} name='Santiago Javier Morillo' username='@santiagomorillodev'/>
-          <UserSearchComponent photo={photo2} name='Juan Flores Farrugio' username='@santiagomorillodev'/>
-          <UserSearchComponent photo={photo3} name='Esthefania Flores Farrugio' username='@santiagomorillodev'/>
+      <main className="mb-15">
+        {query && (
+          <UserSearchComponent
+            photo={user.avatar_url}
+            name={user.name}
+            username={`@${user.username}`}
+            currentSearch={true}
+          />
+        )}
+
+        <p className="text-gray-400 text-sm px-4 py-2 font-bold">Recent</p>
+
+        <section className="flex flex-col gap-3 border-b border-neutral-500 pb-3">
+          {recentSearch && recentSearch.length > 0 ? (
+            recentSearch.map((user) => (
+              <UserSearchComponent
+                key={user.id}
+                id={user.id}
+                photo={user.avatar_url}
+                name={user.name}
+                username={`@${user.username}`}
+                onRemove={handleRemove} // 👈 pasamos la función
+                currentSearch={false}
+              />
+            ))
+          ) : (
+            <p className="text-gray-500 text-center text-sm">No recent searches</p>
+          )}
         </section>
       </main>
-      <div className='md:hidden'>
+
+      <div className="md:hidden">
         <NavigationBar />
       </div>
     </section>
-  )
+  );
 }

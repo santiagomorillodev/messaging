@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, EmailStr, validator, ConfigDict
 from typing import Optional
 import re
 from datetime import datetime
@@ -31,6 +31,8 @@ class UserRead(UserBase):
     avatar_url:Optional[str] = None
     description:Optional[str] = None
     created: datetime
+    
+    model_config = ConfigDict(from_attributes=True, extra="ignore")
 
 
 class UserLogin(BaseModel):

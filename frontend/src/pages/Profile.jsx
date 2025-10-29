@@ -58,15 +58,15 @@ export function Profile() {
 
 
 
-      <section className="w-full flex justify-between ">
+      <section className="w-full flex gap-5">
         <p className="py-1 px-10 bg-fifth rounded-sm cursor-pointer">New post</p>
         <ModalEditProfile photo={photo} name={'Santiago'} username={'santiagomorillodev'} pronouns={'He'} bio={'Desarrollador web y móvil | React, React Native, Node.js, MongoDB, SQL, HTML, CSS, JavaScript | Colombia'} gender={'Male'}/>
       </section>
     </div>
 
-    <h3 className="px-10 pt-10 text-2xl font-semibold">Post</h3>
+    <h3 className="px-10 pt-10 text-2xl font-semibold">Posts</h3>
 
-     <section className=" flex flex-col gap-10 overflow-y-auto scroll-hidden px-4 pt-10 pb-20 border-t border-gray-600">
+     <section className=" flex flex-col items-center gap-10 overflow-y-auto scroll-hidden px-4 pt-10 pb-20 border-t border-gray-600">
         <Posts name={currentUser.name} avatar={currentUser.avatar_url} post={photo}  description={'Esta es una description random'}/>
         <Posts name={currentUser.name} avatar={currentUser.avatar_url} post={photo2}  description={'Esta es una description random'}/>
         <Posts name={currentUser.name} avatar={currentUser.avatar_url} post={photo3}  description={'Esta es una description random'}/>
