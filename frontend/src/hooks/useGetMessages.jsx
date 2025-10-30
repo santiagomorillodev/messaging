@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { fetchWithAuth } from '../utils/fetchWithAuth';
 
 export default function useGetMessages({conversationId}) {
     const [messages, setMessages] = useState([]);
@@ -7,7 +8,7 @@ export default function useGetMessages({conversationId}) {
     useEffect(() => {
       async function fetchMessages() {
         try {
-          const res = await fetch(`http://localhost:8000/inbox/chat/${conversationId}`, {
+          const res = await fetchWithAuth(`http://localhost:8000/inbox/chat/${conversationId}`, {
             method: "GET",
             credentials: "include",
           });

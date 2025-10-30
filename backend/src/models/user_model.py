@@ -1,5 +1,5 @@
 from config import Base
-from sqlalchemy import Column, Integer, DateTime, String, func, CheckConstraint, Text
+from sqlalchemy import Column, Integer, DateTime, String, func, CheckConstraint, Boolean
 from sqlalchemy.orm import relationship
 
 class UserModel(Base):
@@ -12,6 +12,7 @@ class UserModel(Base):
     email = Column(String(100), nullable=False, unique=True)
     password = Column(String(100), nullable=False)
     avatar_url = Column(String(512), nullable=True, default='https://res.cloudinary.com/dyteo3qdh/image/upload/v1760837715/usuario_yrdfvf.png')
+    status = Column(Boolean, default=False)
     created = Column(DateTime(timezone=True), server_default=func.now())
     
     __table_args__ = (

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 export default function useSearchUser() {
   const [query, setQuery] = useState('')
@@ -8,7 +9,7 @@ export default function useSearchUser() {
     console.log('x')
     async function getUserByUsername() {
         try{
-          const response = await fetch(`http://localhost:8000/search/username/${query}`, {
+          const response = await fetchWithAuth(`http://localhost:8000/search/username/${query}`, {
             method: "GET",
             credentials: "include",
           });

@@ -30,6 +30,7 @@ class UserRead(UserBase):
     email: EmailStr
     avatar_url:Optional[str] = None
     description:Optional[str] = None
+    status: bool
     created: datetime
     
     model_config = ConfigDict(from_attributes=True, extra="ignore")

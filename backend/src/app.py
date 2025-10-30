@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from config import init_db
-from routers import user, conversations, messages, images, socket
+from routers import user, conversations, messages, posts, socket
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -17,7 +17,7 @@ app.add_middleware(
 app.include_router(user)
 app.include_router(conversations)
 app.include_router(messages)
-app.include_router(images)
+app.include_router(posts)
 app.include_router(socket)
 
 @app.get('/')

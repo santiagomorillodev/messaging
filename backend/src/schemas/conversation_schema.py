@@ -22,9 +22,6 @@ class ConversationOut(BaseModel):
     id: int
     first_user_id: Optional[int] = None
     second_user_id: Optional[int] = None
-
-    # usar datetime si la DB devuelve datetime; si quieres epoch (int),
-    # conviértelo manualmente antes de validar o expón otro campo timestamp
     created: Optional[datetime] = None
 
     model_config = {

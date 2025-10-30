@@ -16,10 +16,12 @@ import UpdateEmail from './pages/UpdateEmail.jsx'
 import DesktopLayout from './pages/Desktop.jsx'
 import { DesktopViewProvider } from './context/DesktopViewContext.jsx'
 import { WebSocketProvider } from './context/WebSocketContext.jsx'
+import useLogoutOnClose from './hooks/useLogoutOnClose.js'
 
 
 function App() {
   const navigate = useNavigate()
+  useLogoutOnClose()
 
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem('theme') === 'dark'

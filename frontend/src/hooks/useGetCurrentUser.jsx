@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 export default function useGetCurrentUser() {
     const [currentUser, setCurrentUser] = useState(null)
@@ -7,7 +8,7 @@ export default function useGetCurrentUser() {
     useEffect(() => {
       async function getUser() {
         try {
-          const response = await fetch("http://localhost:8000/me", {
+          const response = await fetchWithAuth("http://localhost:8000/me", {
             method: "GET",
             credentials: "include",
           });

@@ -48,7 +48,7 @@ export function Login () {
 					</div>
 				</div>
 
-				<button type="submit" className="bg-fifth text-white w-[218px] h-[43px] mx-auto">Log in</button>
+				<button type="submit" className="bg-fifth text-white w-[218px] h-[43px] mx-auto cursor-pointer">Log in</button>
 			</form>
 
 			<section className='w-[410px] h-14 bg-first flex justify-center items-center'>

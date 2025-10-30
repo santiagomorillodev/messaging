@@ -8,6 +8,7 @@ import useGetCurrentUser from '../hooks/useGetCurrentUser';
 export function Inbox() {
   const { conversations } = GetAllConversation();
   const { currentUser } = useGetCurrentUser();
+  console.log(conversations);
   
   // ✅ Estado local para controlar si ya cargó las conversaciones
   const [localConversations, setLocalConversations] = useState([]);

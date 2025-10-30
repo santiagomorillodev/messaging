@@ -4,7 +4,6 @@ import { MessageContainer } from "../components/MessageContainer";
 import { useDesktopView } from "../context/DesktopViewContext";
 import useGetMessages from "../hooks/useGetMessages";
 import useGetCurrentUser from "../hooks/useGetCurrentUser";
-import Error from "../components/Error.jsx";
 import { useWebSocket } from "../context/WebSocketContext.jsx";
 
 export function Chat() {
@@ -24,10 +23,10 @@ export function Chat() {
 
   const locationData = location.state || {};
   const chatData = locationData?.name ? locationData : viewData;
-  const { name, photo, chatId } = chatData || {};
+  const { name, photo, chatId, status } = chatData || {};
   const { messages, loading, error } = useGetMessages({ conversationId: chatId });
   const [initialLoad, setInitialLoad] = useState(true);
-
+  console.log(name, photo, chatId)
   useEffect(() => {
     if (!loading && initialLoad) {
       setInitialLoad(false);
@@ -42,14 +41,12 @@ useEffect(() => {
 }, [loading, messages]);
 
 
-// 🔹 Este es el de los mensajes en tiempo real
 useEffect(() => {
   if (!socket || !chatId) return;
 
   const handleNewMessage = (event) => {
     const data = event.detail;
 
-    // Verifica que el mensaje pertenece al chat actual
     if (data.conversation_id !== chatId) return;
 
     console.log("📩 Mensaje recibido en Chat.jsx:", data);
@@ -88,9 +85,7 @@ useEffect(() => {
     );
   }
 
-  if (error) {
-    return <Error error={error} />;
-  }
+  
 
   if (!currentUser) {
     return <p className="text-white">Cargando usuario...</p>;
@@ -147,7 +142,7 @@ useEffect(() => {
           />
           <div>
             <p>{name}</p>
-            <p>Activo ahora</p>
+            <p>{status ? "Active now" : "Inactive"}</p>
           </div>
         </div>
         <i className="bx bx-phone text-4xl pr-6"></i>

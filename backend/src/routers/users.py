@@ -67,12 +67,26 @@ def login(data:OAuth2PasswordRequestForm = Depends(), db:Session = Depends(get_d
             max_age=1800,
             expires=1800
         )
-        print(response)
+        user_db.status = True
+        db.commit()
+        db.refresh(user_db)
         return response
     
     except ValueError as error:
         print(error)
 
+
+@root.post('/logout')
+def logout (current_user: UserModel = Depends(get_current_user), db:Session = Depends(get_db)):
+    try:
+        user = db.query(UserModel).filter(UserModel.id == current_user.id).first()
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
+        user.status = False
+        db.commit()
+        db.refresh(user)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 @root.get("/", response_model=list[UserRead])
 def get_users(db: Session = Depends(get_db)):

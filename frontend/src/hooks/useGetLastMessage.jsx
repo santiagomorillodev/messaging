@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 export default function useGetLastMessage(conversationId) {
   const [lastMessage, setLastMessage] = useState(null);
@@ -23,7 +24,7 @@ export default function useGetLastMessage(conversationId) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`http://localhost:8000/conversation/${conversationId}/last-message`, {
+        const res = await fetchWithAuth(`http://localhost:8000/conversation/${conversationId}/last-message`, {
           method: "GET",
           credentials: "include",
           signal: controller.signal,
@@ -31,12 +32,10 @@ export default function useGetLastMessage(conversationId) {
 
         if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
         const data = await res.json();
-        // Normalizamos: si la API devuelve { message: {...} } o devuelve el message directamente
         const message = data?.message ?? data;
         if (mounted) setLastMessage(message ?? null);
       } catch (err) {
         if (err.name === "AbortError") {
-          // petición abortada, no hacemos nada
         } else {
           if (mounted) {
             console.error("Error fetching last message:", err);
@@ -56,6 +55,8 @@ export default function useGetLastMessage(conversationId) {
       controller.abort();
     };
   }, [conversationId, reloadFlag]);
+
+  console.log(lastMessage)
 
   return { lastMessage, loading, error, reload };
 }

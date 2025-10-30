@@ -102,7 +102,7 @@ def get_all_conversation(current_user:UserModel = Depends(get_current_user), db:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='Conversations not found'
             )
-        
+        print(conversations)
         list_conversations: list[ConversationOut] = [ConversationOut.from_orm(conv) for conv in conversations]
         new_conversations = []
         for conv in list_conversations:
@@ -110,14 +110,14 @@ def get_all_conversation(current_user:UserModel = Depends(get_current_user), db:
                 conversation = {
                     'id': conv.id,
                     'user': conv.second_user_id,
-                    'created': conv.created
+                    'created': conv.created,
                 }
                 new_conversations.append(conversation)
             else:
                 conversation = {
                     'id': conv.id,
                     'user': conv.first_user_id,
-                    'created': conv.created
+                    'created': conv.created,
                 }
                 new_conversations.append(conversation)
         

@@ -7,7 +7,7 @@ from security import get_current_user
 from cloudinary import uploader, api
 
 
-root = APIRouter(prefix='/images', tags=['Images'])
+root = APIRouter(prefix='/post', tags=['Post'])
 
 @root.post('/upload')
 async def upload_image(file:UploadFile = File(...), current_user:UserModel = Depends(get_current_user) ,db:Session = Depends(get_db)):
@@ -29,16 +29,20 @@ async def upload_image(file:UploadFile = File(...), current_user:UserModel = Dep
     except ValueError as error:
         print(error)
 
-@root.get('/all')
-async def get_images(current_user:UserModel = Depends(get_current_user), db:Session = Depends(get_db)):
-    images = db.query(PostModel).filter(PostModel.id_user == current_user.id).all()
-    if not images:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Images not found'
-        )
+@root.get('/{id}')
+async def get_posts_current_user(id:int, db:Session = Depends(get_db)):
+    try:
+        posts = db.query(PostModel).filter(PostModel.id_user == id).all()
+        if not posts:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='posts not found'
+            )
+        
+        return posts
     
-    return images
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 @root.delete('/delete/{public_id}')
 async def delete_image(public_id: str ,current_user:UserModel = Depends(get_current_user), db:Session = Depends(get_db)):

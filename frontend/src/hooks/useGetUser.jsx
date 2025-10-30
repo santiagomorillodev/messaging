@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { fetchWithAuth } from '../utils/fetchWithAuth';
 
 export default function useGetUser(idUser) {
     const [user, setUser] = useState(null)
@@ -6,7 +7,7 @@ export default function useGetUser(idUser) {
     useEffect(() => {
       async function getUser() {
         try{
-          const data = await fetch(`http://localhost:8000/id/${idUser}`, {
+          const data = await fetchWithAuth(`http://localhost:8000/id/${idUser}`, {
             method: "GET",
             credentials: "include",
           });
@@ -32,5 +33,6 @@ export default function useGetUser(idUser) {
       }
 
     }, [idUser])
+    console.log(user)
   return {user, loading, error: !loading && !user}
 }

@@ -1,6 +1,5 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
 from models import ConversationModel, UserModel, MessageModel
 from config import get_db
 from security import decode_access_token
@@ -9,17 +8,6 @@ from sockets import ConnectionManager
 router = APIRouter(prefix="/ws", tags=["Chat WebSocket"])
 manager = ConnectionManager()
 
-
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
-from sqlalchemy.orm import Session
-from models import ConversationModel, UserModel, MessageModel
-from config import get_db
-from security import decode_access_token
-from sockets import ConnectionManager
-from datetime import datetime
-
-router = APIRouter(prefix="/ws", tags=["Chat WebSocket"])
-manager = ConnectionManager()
 
 @router.websocket("/user/{user_id}")
 async def websocket_endpoint(websocket: WebSocket, user_id: int, db: Session = Depends(get_db)):
@@ -44,13 +32,17 @@ async def websocket_endpoint(websocket: WebSocket, user_id: int, db: Session = D
     await manager.connect(user_id, websocket)
     print(f"🔌 Usuario conectado: {current_user.username}")
 
+    # ✅ Actualizar status a True cuando se conecta
+    current_user.status = True
+    db.commit()
+
     try:
         while True:
             try:
                 data = await websocket.receive_json()
             except WebSocketDisconnect:
                 print(f"⚠️ Cliente {user_id} desconectado correctamente.")
-                break  # 👈 Rompe el bucle de forma limpia
+                break
             except Exception as e:
                 print(f"⚠️ Error al recibir mensaje: {e}")
                 db.rollback()
@@ -105,3 +97,8 @@ async def websocket_endpoint(websocket: WebSocket, user_id: int, db: Session = D
         print(f"❌ Usuario {user_id} se desconectó (capturado fuera del bucle).")
         manager.disconnect(user_id, websocket)
 
+        # ✅ Cambiar status a False al desconectarse
+        user = db.query(UserModel).filter(UserModel.id == user_id).first()
+        if user:
+            user.status = False
+            db.commit()

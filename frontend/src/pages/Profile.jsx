@@ -7,11 +7,12 @@ import { Posts } from "../components/Posts";
 import FollowComponent from "../components/FollowComponent";
 import ModalEditProfile from "../components/ModalEditProfile";
 import useGetCurrentUser from "../hooks/useGetCurrentUser";
+import useGetPosts from "../hooks/useGetPosts";
 
 export function Profile() {
   const [showModalFollows, setShowModalFollows] = useState(false)
   const {currentUser, loading, error} = useGetCurrentUser();
-
+  const {posts} = useGetPosts({id: currentUser ? currentUser.id : null});
   if (loading) {
     return (
       <div className="w-full h-screen flex items-center justify-center text-white">
@@ -28,15 +29,15 @@ export function Profile() {
     );
   }
 
+  
+
   return (
     <>
       <section>
-        {/* photo3 como fondo que cubre todo el div sin afectar layout */}
         <div
           className="w-full h-40 bg-first relative bg-cover bg-center"
           style={{ backgroundImage: `url(${photo3})` }}
         >
-          {/* sombra en la parte inferior, va hacia arriba */}
           <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
 
           <img
@@ -67,9 +68,11 @@ export function Profile() {
     <h3 className="px-10 pt-10 text-2xl font-semibold">Posts</h3>
 
      <section className=" flex flex-col items-center gap-10 overflow-y-auto scroll-hidden px-4 pt-10 pb-20 border-t border-gray-600">
-        <Posts name={currentUser.name} avatar={currentUser.avatar_url} post={photo}  description={'Esta es una description random'}/>
-        <Posts name={currentUser.name} avatar={currentUser.avatar_url} post={photo2}  description={'Esta es una description random'}/>
-        <Posts name={currentUser.name} avatar={currentUser.avatar_url} post={photo3}  description={'Esta es una description random'}/>
+        {
+          posts ? posts.map((post) => (
+            <Posts key={post.id} name={currentUser.name} avatar={currentUser.avatar_url} post={post.content} description='This is my first post.'/>
+          )) : <p>No posts available.</p>
+        }
         
       </section>
       <div className="md:hidden">

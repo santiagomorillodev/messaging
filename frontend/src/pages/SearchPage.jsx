@@ -17,10 +17,11 @@ export function SearchPage() {
     }
   };
 
-  // 👇 Función para eliminar un usuario del estado localmente
   const handleRemove = (id) => {
     setRecentSearch((prev) => prev.filter((u) => u.id !== id));
   };
+
+  console.log(recentSearch);
 
   return (
     <section className="border-r border-neutral-500 md:min-w-[385px]">
