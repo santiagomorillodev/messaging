@@ -10,6 +10,7 @@
         "mysql",
         "nubu",
         "nullable",
+        "ondelete",
         "santiagomorillodev",
         "sessionmaker"
     ]

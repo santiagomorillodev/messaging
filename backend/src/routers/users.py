@@ -147,13 +147,19 @@ def get_username(username: str, current_user: UserModel = Depends(get_current_us
 def current_user(user: UserModel = Depends(get_current_user)):
     return user
 
-@root.delete("/")
+@root.delete("/delete/account")
 def delete_current_user(data: UserDeleteRequest, user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
+    if user.email != data.email:
+        print('invalid email')
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials in endpoint",
+        )
     password = str(data.password)
-    hashed_password = str(user.password)
-    correct_password = verify_password(password, hashed_password)
+    correct_password = verify_password(password, user.password)
 
     if not correct_password:
+        print('invalid password')
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials in endpoint",

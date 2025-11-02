@@ -17,6 +17,7 @@ import DesktopLayout from './pages/Desktop.jsx'
 import { DesktopViewProvider } from './context/DesktopViewContext.jsx'
 import { WebSocketProvider } from './context/WebSocketContext.jsx'
 import useLogoutOnClose from './hooks/useLogoutOnClose.js'
+import DeleteAccount from './pages/DeleteAccount.jsx'
 
 
 function App() {
@@ -69,6 +70,7 @@ function App() {
           <Route path='/likes' element={<Likes />} />
           <Route path='/update/password' element={<UpdatePassword />} />
           <Route path='/update/email' element={<UpdateEmail />} />
+          <Route path='/delete/account' element={<DeleteAccount />} />
 
           <Route path='/desktop/*' element={<DesktopViewProvider><DesktopLayout /></DesktopViewProvider>}>
             <Route index element={<Inbox />} />

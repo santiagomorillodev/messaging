@@ -45,6 +45,7 @@ class UserLogged(UserBase):
     password: str
     
 class UserDeleteRequest(BaseModel):
+    email: EmailStr
     password: str
     
 class UserUpdate(BaseModel):

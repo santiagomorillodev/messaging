@@ -17,33 +17,7 @@ return (
             <p className="text-xl text-gray-500 font-bold p-2">Settings</p>
 
             <section className="pl-4 py-3 bg-white dark:bg-neutral-900 flex flex-col gap-4">
-                    <div className="flex flex-col gap-2  border-b-1 border-neutral-600 ">
-                            <div className="flex justify-between pr-4">
-                                    <h2 className="text-xl font-bold">Recibe message for anyone</h2>
-                                    <ToggleSwitch/>
-                            </div>
-
-                            <p className="text-sm text-gray-400">You will be abel to recibe direct message request from anyone on this app. Even if you don't follow them</p>
-                            <p className="text-blue-400 text-sm">Learn more</p>
-                    </div>
                     
-                    <div className="flex flex-col gap-2  border-b-1 border-neutral-600 ">
-                <div className="flex justify-between pr-4">
-                    <h2 className="text-xl font-bold">Quality filter</h2>
-                    <ToggleSwitch/>
-                </div>
-
-                <p className="text-sm text-gray-400">Filters lower-quality messages from your direct message request <span className="text-blue-400">Learn more</span></p>
-            </div>
-
-            <div className="flex flex-col gap-2 border-b-1 border-neutral-600 ">
-                <div className="flex justify-between pr-4">
-                    <h2 className="text-xl font-bold">Show read receipts</h2>
-                    <ToggleSwitch/>
-                </div>
-
-                <p className="text-sm text-gray-400">When someone sends you a message, people in the conversation will know when you've seen it. if you turn off this setting, you won't be able to see read receipts from others <span className="text-blue-400">Learn more</span></p>
-            </div>
 
             <div className="flex flex-col gap-2">
                 <div className="flex justify-between pr-4">
@@ -69,6 +43,15 @@ return (
                 </div>
                 <p className="text-sm text-gray-400">
                     In this section, you can see all the posts, photos, or statuses that the user has liked. It’s a quick way to review the content they’ve shown interest in or interacted with recently. <span className="text-blue-400 cursor-pointer" onClick={() => navigate('/likes')}>See likes</span>
+                </p>
+            </div>
+
+            <div className="flex flex-col gap-2">
+                <div className="flex justify-between pr-4">
+                    <h2 className="text-xl font-bold">Delete account</h2>
+                </div>
+                <p className="text-sm text-gray-400">
+                    In this section, you can delete your account permanently. This action cannot be undone. <span className="text-blue-400 cursor-pointer" onClick={() => navigate('/delete/account')}>Delete account</span>
                 </p>
             </div>
 
