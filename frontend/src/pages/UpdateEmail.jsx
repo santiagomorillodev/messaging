@@ -1,8 +1,40 @@
 import { useNavigate } from "react-router-dom";
 import { NavigationBar } from "../components/NavigationBar";
+import useGetCurrentUser from "../hooks/useGetCurrentUser";
 
 export default function UpdateEmail() {
+    const currentUser = useGetCurrentUser();
+    const {email} = currentUser || {};
+
     const navigate = useNavigate()
+    const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const updateData = {};
+
+    if (email !== formData.get("newEmail")) {
+      updateData["email"] = formData.get("newEmail");
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      alert("No hay cambios");
+      return;
+    }
+
+    console.log("Enviando datos actualizados:", updateData);
+
+    await fetch("http://localhost:8000/user/update", { // <-- tu endpoint real
+      credentials: "include",
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updateData),
+    });
+    console.log("Perfil actualizado:", updateData);
+    navigate('/');
+  };
     return (
         <>
             <nav>
@@ -22,7 +54,7 @@ export default function UpdateEmail() {
             </nav>
 
             <main className="px-4">
-                <form action="">
+                <form onSubmit={handleSubmit}>
                     <div className="flex flex-col gap-4 max-w-md mx-auto mt-8">
                         <label className="flex flex-col ">
                             <span className="mb-1 font-medium">Current Password</span>

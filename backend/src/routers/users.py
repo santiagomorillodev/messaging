@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, desc
-from schemas import UserCreate,UserRead,UserDeleteRequest,UserUpdate,UserLikes
+from schemas import UserCreate,UserRead,UserDeleteRequest,UserUpdate,UserLikes, UserPassword, UserEmail
 from models import UserModel, FollowerModel, LikeModel, RecentModel,PostModel
 from utils import get_user_email, get_by_username, verify_follow, get_user_by_id
 from config import get_db
@@ -177,6 +177,35 @@ def update_user(data: UserUpdate, current_user: UserModel = Depends(get_current_
     db.refresh(current_user)
     return {"message": "Updated user"}
 
+@root.patch('/change/password')
+def change_password(data:UserPassword, user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
+    current_user = db.query(UserModel).filter(UserModel.id == user.id).first()
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    
+    if not verify_password(data.current_password, current_user.password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    
+    new_password = hash_password(data.new_password)
+    current_user.password = new_password
+    db.commit()
+    db.refresh(current_user)
+    return {"message": "Updated user"}
+
+
+@root.get('/change/email')
+def change_email(data:UserEmail, user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
+    current_user = db.query(UserModel).filter(UserModel.id == user.id).first()
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    
+    if not verify_password(data.current_password, current_user.password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    
+    current_user.email = data.email
+    db.commit()
+    db.refresh(current_user)
+    return {"message": "Updated user"}
 
 
 @root.get("/recent/search", response_model=list[UserRead])

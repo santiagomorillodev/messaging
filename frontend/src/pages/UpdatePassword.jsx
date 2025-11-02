@@ -3,6 +3,50 @@ import { NavigationBar } from "../components/NavigationBar";
 
 export default function UpdatePassword() {
     const navigate = useNavigate()
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+      const currentPassword = formData.get("currentPassword");
+      const newPassword = formData.get("newPassword");
+      const repeatNewPassword = formData.get("repeatNewPassword");
+
+      if (newPassword !== repeatNewPassword) {
+        alert("Las nuevas contraseñas no coinciden");
+        return;
+      }
+
+      if (currentPassword === newPassword) {
+        alert("La nueva contraseña no puede ser igual a la actual");
+        return;
+      }
+
+      const updateData = {
+        current_password: currentPassword,
+        new_password: newPassword
+      };
+
+      console.log("Enviando datos actualizados:", updateData);
+
+      const res = await fetch("http://localhost:8000/change/password", {
+        credentials: "include",
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        alert(error.detail || "Error al actualizar contraseña");
+        return;
+      }
+
+      alert("Contraseña actualizada correctamente");
+      navigate("/");
+    };
   return (
     <>
       <nav>
@@ -14,7 +58,7 @@ export default function UpdatePassword() {
       </nav>
 
       <main className="px-4">
-        <form action="">
+        <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-4 max-w-md mx-auto mt-8">
                 <label className="flex flex-col ">
                     <span className="mb-1 font-medium">Current Password</span>

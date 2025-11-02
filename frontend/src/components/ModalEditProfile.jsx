@@ -43,7 +43,7 @@ export default function ModalEditProfile({ photo , name, username, pronouns, bio
       body: JSON.stringify(updateData),
     });
     console.log("Perfil actualizado:", updateData);
-    // navigate('/');
+    if (originalData != updateData.username) navigate('/')
   };
   return (
     <>
