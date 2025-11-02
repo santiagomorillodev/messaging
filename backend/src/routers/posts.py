@@ -1,48 +1,74 @@
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException,status
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
-from schemas import UserCreate, UserRead, UserDeleteRequest, UserUpdate
-from models import UserModel, PostModel
-from config import get_db, cloudinary
+from models import PostModel, UserModel, FollowerModel
+from config import get_db
 from security import get_current_user
 from cloudinary import uploader, api
 
-
 root = APIRouter(prefix='/post', tags=['Post'])
 
-@root.post('/upload')
-async def upload_image(file:UploadFile = File(...), current_user:UserModel = Depends(get_current_user) ,db:Session = Depends(get_db)):
+@root.post('/create')
+async def create_post(
+    content: str = Form(...),
+    file: UploadFile = File(None),
+    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     try:
-        result = uploader.upload(file.file)
-        image_url = result.get('secure_url')
-        public_id = result.get('public_id')
-        
-        image = PostModel(
-            id_user = current_user.id,
-            public_id = public_id,
-            url = image_url
-            
+        image_url = None
+        public_id = None
+
+        if file:
+            result = uploader.upload(file.file)
+            image_url = result.get('secure_url')
+            public_id = result.get('public_id')
+
+        post = PostModel(
+            id_user=current_user.id,
+            content=content,
+            url=image_url,
+            public_id=public_id
         )
-        db.add(image)
+        db.add(post)
         db.commit()
-        db.refresh(image)
-        return {'id': image.id, 'url': image.url}
-    except ValueError as error:
-        print(error)
+        db.refresh(post)
+
+        return {
+            "id": post.id,
+            "content": post.content,
+            "url": post.url,
+            "public_id": post.public_id,
+            "created": post.created
+        }
+
+    except Exception as e:
+        print("⚠️ Error subiendo post:", e)
+        raise HTTPException(status_code=500, detail="Error creating post")
 
 @root.get('/{id}')
-async def get_posts_current_user(id:int, db:Session = Depends(get_db)):
+def get_posts_current_user(id: int, db: Session = Depends(get_db)):
     try:
-        posts = db.query(PostModel).filter(PostModel.id_user == id).all()
+        posts = db.query(PostModel)\
+                  .filter(PostModel.id_user == id)\
+                  .order_by(PostModel.id.desc())\
+                  .all()  # <--- importante
+
         if not posts:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail='posts not found'
+                detail='Posts not found'
             )
-        
+
         return posts
-    
-    except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+
 
 @root.delete('/delete/{public_id}')
 async def delete_image(public_id: str ,current_user:UserModel = Depends(get_current_user), db:Session = Depends(get_db)):

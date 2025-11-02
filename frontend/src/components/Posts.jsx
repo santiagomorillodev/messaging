@@ -1,14 +1,4 @@
-import { useEffect, useState } from "react";
-
-export function Posts({ name, avatar, post, description }) {
-  const [typePost, setTypePost] = useState(null)
-  useEffect(() => {
-    if (typeof(post) === 'string' && !post.startsWith('http')) {
-      setTypePost('text')
-    } else {
-      setTypePost('image')
-    }
-  }, [post])
+export function Posts({ name, avatar, postText, postImage }) {
   
   return (
     <div className="w-full max-w-[498px] overflow-hidden border border-gray-400 rounded-2xl bg-neutral-800">
@@ -20,12 +10,11 @@ export function Posts({ name, avatar, post, description }) {
         </div>
       </div>
 
-      {typePost === 'text' ?
-      <div className="w-full px-4"><p>{post}</p></div>:
-      <div className="w-full h-[498px]"><img src={post} alt={`${name} post image`} className="w-full h-full object-cover" loading="lazy"/></div>
+      {postImage ?
+      <div className="w-full h-[498px]"><img src={postImage} alt={`${name} post image`} className="w-full h-full object-cover" loading="lazy"/></div>: null
       }
       <div className="p-2 flex justify-between items-center">
-        <p className="text-white text-sm max-w-[70%]">{description}</p>
+        <p className="text-white text-lg max-w-[70%]">{postText}</p>
         <button><i className='bx bx-heart text-3xl p-2'  ></i> </button>
       </div>
     </div>

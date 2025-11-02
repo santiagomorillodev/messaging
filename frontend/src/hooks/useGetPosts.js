@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 export default function useGetPosts({id}) {
   const [posts, setPosts] = useState([]);
   useEffect(() => {
+    if (!id) return;
     async function fetchPostsUser(){
       const response = await fetch(`http://localhost:8000/post/${id}`)
       if (response.ok){

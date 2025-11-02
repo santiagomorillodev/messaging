@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { fetchWithAuth } from '../utils/fetchWithAuth';
 
 export default function GetAllConversation() {
   const [conversations, setConversations] = useState(null);
@@ -8,7 +7,7 @@ export default function GetAllConversation() {
   useEffect(() => {
     async function getConversations() {
       try {
-        const response = await fetchWithAuth("http://localhost:8000/conversation/all", {
+        const response = await fetch("http://localhost:8000/conversation/all", {
           method: "GET",
           credentials: "include",
         });

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { fetchWithAuth } from '../utils/fetchWithAuth';
 
 export default function useGetRecentSearch() {
   const [recentSearch, setRecentSearch] = useState([]);
@@ -7,7 +6,7 @@ export default function useGetRecentSearch() {
   useEffect(() => {
     async function fetchRecentSearch() {
       try {
-        const response = await fetchWithAuth('http://localhost:8000/recent/search', {
+        const response = await fetch('http://localhost:8000/recent/search', {
           method: 'GET',
           credentials: 'include',
         });

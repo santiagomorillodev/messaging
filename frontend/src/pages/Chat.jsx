@@ -119,6 +119,9 @@ useEffect(() => {
     window.dispatchEvent(new CustomEvent("new-message", { detail: payload }));
 
     event.target.value = "";
+    const iconsContainer = document.querySelector(".chat-icons");
+    if (iconsContainer) iconsContainer.style.display = "flex";
+
   }
 };
 
@@ -162,18 +165,28 @@ useEffect(() => {
         )}
       </main>
 
-      <footer className="bg-first w-full flex gap-2 items-center py-3 px-4 ">
-        <i className="bx bxs-camera text-2xl text-white bg-fourth rounded-full p-2"></i>
-        <input
+      <footer className="bg-first w-full flex gap-2 items-center py-3 px-4">
+        <div className="chat-icons flex items-center gap-2">
+          <i className="bx bxs-camera text-2xl text-white bg-fourth rounded-full p-2"></i>
+          <i className="bx bx-microphone text-3xl"></i>
+          <i className="bx bx-image-alt text-3xl"></i>
+        </div>
+
+        <textarea
           ref={inputRef}
-          type="text"
           placeholder="Send a message"
-          className="outline-0 w-full"
+          className="outline-0 w-full bg-transparent resize-none overflow-y-auto max-h-[72px]"
+          rows={1}
           onKeyDown={handleSubmit}
+          onInput={(e) => {
+            const hasText = e.target.value.trim() !== "";
+            const iconsContainer = document.querySelector(".chat-icons");
+            if (!iconsContainer) return;
+            iconsContainer.style.display = hasText ? "none" : "flex";
+          }}
         />
-        <i className="bx bx-microphone text-3xl"></i>
-        <i className="bx bx-image-alt text-3xl"></i>
       </footer>
+
     </div>
   );
 }

@@ -30,7 +30,6 @@ async def websocket_endpoint(websocket: WebSocket, user_id: int, db: Session = D
 
     # ✅ Conectar usuario
     await manager.connect(user_id, websocket)
-    print(f"🔌 Usuario conectado: {current_user.username}")
 
     # ✅ Actualizar status a True cuando se conecta
     current_user.status = True

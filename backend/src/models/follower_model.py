@@ -12,7 +12,10 @@ class FollowerModel(Base):
     __table_args__ = (
         UniqueConstraint('follower_id', 'followed_id', name='uix_user_group'),
     )
-
+    
+    def __repr__(self):
+        return f"<Followers(id={self.id}, follower={self.followed_id}, followed={self.followed}')>"
+    
     follower = relationship(
         'UserModel',
         foreign_keys=[follower_id],

@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from "react";
-import { fetchWithAuth } from "../utils/fetchWithAuth";
 
 export default function useGetLastMessage(conversationId) {
   const [lastMessage, setLastMessage] = useState(null);
@@ -24,7 +23,7 @@ export default function useGetLastMessage(conversationId) {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetchWithAuth(`http://localhost:8000/conversation/${conversationId}/last-message`, {
+        const res = await fetch(`http://localhost:8000/conversation/${conversationId}/last-message`, {
           method: "GET",
           credentials: "include",
           signal: controller.signal,

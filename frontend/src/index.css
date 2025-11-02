@@ -68,3 +68,7 @@
 .bg-sixth {
   background-color: var(--color-sixth);
 }
+
+textarea {
+  line-height: 24px;
+}

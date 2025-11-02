@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, desc
 from schemas import UserCreate,UserRead,UserDeleteRequest,UserUpdate,UserLikes
-from models import UserModel, FollowerModel, LikeModel, RecentModel
+from models import UserModel, FollowerModel, LikeModel, RecentModel,PostModel
 from utils import get_user_email, get_by_username, verify_follow, get_user_by_id
 from config import get_db
 from security import hash_password, verify_password, create_access_token, get_current_user
@@ -164,8 +164,9 @@ def delete_current_user(data: UserDeleteRequest, user: UserModel = Depends(get_c
     return {"message": "deleted"}
 
 
-@root.patch("/")
+@root.patch("/user/update")
 def update_user(data: UserUpdate, current_user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
+    print(data)
     if not current_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     update_data = data.dict(exclude_unset=True)
@@ -262,6 +263,38 @@ async def get_likes(user: UserModel = Depends(get_current_user)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     return user.likes
 
+
+@root.get('/post/all')
+def get_user_post_all(
+    user: UserModel = Depends(get_current_user), 
+    db: Session = Depends(get_db)
+):
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Invalid credentials'
+        )
+
+    try:
+        following_ids = db.query(FollowerModel.followed_id)\
+            .filter(FollowerModel.follower_id == user.id)\
+            .subquery()
+
+        posts = db.query(PostModel)\
+            .filter(
+                (PostModel.id_user == user.id) |
+                (PostModel.id_user.in_(following_ids))
+            )\
+            .order_by(PostModel.id.desc())\
+            .all()
+
+        return posts
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f'Error: {str(e)}'
+        )
 
 @root.post("/post/likes")
 async def toggle_likes(post: UserLikes, user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
