@@ -55,7 +55,6 @@ export default function useGetLastMessage(conversationId) {
     };
   }, [conversationId, reloadFlag]);
 
-  console.log(lastMessage)
 
   return { lastMessage, loading, error, reload };
 }

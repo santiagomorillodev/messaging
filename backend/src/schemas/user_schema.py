@@ -59,7 +59,7 @@ class UserConversation(BaseModel):
     id: int
 
 class UserLikes(BaseModel):
-   id : int
+   post_id : int
 
 class UserPassword(BaseModel):
    current_password : str

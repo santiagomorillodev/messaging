@@ -9,6 +9,7 @@ import useGetCurrentUser from '../hooks/useGetCurrentUser';
 export function Status ()  {
   const {currentUser, loading, error} = useGetCurrentUser();
   const {allPosts} = useGetAllPosts();
+  console.log(allPosts);
 
   if (loading) {
     return (
@@ -34,12 +35,14 @@ export function Status ()  {
           allPosts && allPosts.length > 0 ? (
             allPosts.map((post) => (
               <Posts
-                key={post.id}
-                name={currentUser.name}
-                avatar={currentUser.avatar_url}
-                postText={post.content}
-                postImage={post.url}
-              />
+                key={post.id} 
+                id={post.id} 
+                userId={post.id_user} 
+                name={post.user.name} 
+                avatar={post.user.avatar_url} 
+                postText={post.content} 
+                postImage={post.url} 
+                likes={post.likes}/>
             ))
           ) : (
             <p>No posts available.</p>

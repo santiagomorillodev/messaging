@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_, desc
 from schemas import UserCreate,UserRead,UserDeleteRequest,UserUpdate,UserLikes, UserPassword, UserEmail
 from models import UserModel, FollowerModel, LikeModel, RecentModel,PostModel, NotificationModel
@@ -315,15 +315,52 @@ def get_user_post_all(
             .filter(FollowerModel.follower_id == user.id)\
             .subquery()
 
-        posts = db.query(PostModel)\
+        posts = (
+            db.query(PostModel)
             .filter(
                 (PostModel.id_user == user.id) |
                 (PostModel.id_user.in_(following_ids))
-            )\
-            .order_by(PostModel.id.desc())\
+            )
+            .options(
+                joinedload(PostModel.user),
+                joinedload(PostModel.likes)
+            )
+            .order_by(PostModel.id.desc())
             .all()
+        )
 
-        return posts
+        # 🔥 Serializar para evitar datos sensibles
+        response = []
+        for p in posts:
+            response.append({
+                "id": p.id,
+                "content": p.content,
+                "url": p.url,
+                "public_id": p.public_id,
+                "created": p.created,
+                "likes": [{"user_id": l.user_id} for l in p.likes],
+                "user": {
+                    "user_id": p.user.id,
+                    "username": p.user.username,
+                    "name": p.user.name,
+                    "avatar_url": p.user.avatar_url
+                }
+            })
+
+        return response
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
 
     except Exception as e:
         raise HTTPException(
@@ -331,26 +368,24 @@ def get_user_post_all(
             detail=f'Error: {str(e)}'
         )
 
-@root.post("/post/likes")
+@root.post("/api/like")
 async def toggle_likes(post: UserLikes, user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
-    post_db = db.query(LikeModel).filter(LikeModel.id == post.id).first()
+    post_db = db.query(PostModel).filter(PostModel.id == post.post_id).first()
     if not post_db:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
 
-    exist_like = (
-        db.query(LikeModel)
-        .filter(LikeModel.user_id == user.id, LikeModel.post_id == post.id)
-        .first()
-    )
+    exist_like = db.query(LikeModel).filter(and_(LikeModel.user_id == user.id, LikeModel.post_id == post.post_id)).first()
 
     if exist_like:
         db.delete(exist_like)
         db.commit()
+        print('dislike')
         return "Dislike"
     else:
-        new_like = LikeModel(user_id=user.id, post_id=post.id)
+        new_like = LikeModel(user_id=user.id, post_id=post.post_id)
         db.add(new_like)
         db.commit()
+        print('new like')
         return "Like"
     
 

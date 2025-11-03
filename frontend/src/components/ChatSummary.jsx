@@ -33,7 +33,6 @@ export const ChatSummary = ({ idUser, conversationId, content, refetchConversati
       const { conversation_id, content } = data;
 
       if (conversation_id === conversationId) {
-        console.log("📩 Actualizando ChatSummary:", conversation_id, content);
         reloadLast();
       }
 

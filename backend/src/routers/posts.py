@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException,status
 from sqlalchemy import desc
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from models import PostModel, UserModel, FollowerModel, NotificationModel, LikeModel
 from config import get_db
 from security import get_current_user
@@ -63,18 +63,40 @@ async def create_post(
 @root.get('/{id}')
 def get_posts_current_user(id: int, db: Session = Depends(get_db)):
     try:
-        posts = db.query(PostModel).filter(PostModel.id_user == id).order_by(PostModel.id.desc()).all()  # <--- importante
+        posts = (
+            db.query(PostModel)
+            .filter(PostModel.id_user == id)
+            .options(
+                joinedload(PostModel.user),      # carga datos del usuario
+                joinedload(PostModel.likes)      # carga likes del post
+            )
+            .order_by(PostModel.id.desc())
+            .all()
+        )
 
         if not posts:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail='Posts not found'
+                status_code=404,
+                detail="Posts not found"
             )
-        
-        likes = db.query(LikeModel).filter(LikeModel.user_id == id).all()
-        
+        response = []
+        for p in posts:
+            response.append({
+                "id": p.id,
+                "content": p.content,
+                "url": p.url,
+                "public_id": p.public_id,
+                "created": p.created,
+                "likes": [{"user_id": l.user_id} for l in p.likes],
+                "user": {
+                    "user_id": p.user.id,
+                    "username": p.user.username,
+                    "name": p.user.name,
+                    "avatar_url": p.user.avatar_url
+                }
+            })
 
-        return posts
+        return response
 
     except Exception as e:
         raise HTTPException(

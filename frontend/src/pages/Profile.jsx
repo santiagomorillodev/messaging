@@ -17,9 +17,6 @@ export function Profile() {
   const [image, setImage] = useState(null)
   const [comment, setComment] = useState("");
   const { createPost, loadingPost, errorPost } = useCreatePost();
-
-  console.log(posts)
-
   if (loading) {
     return (
       <div className="w-full h-screen flex items-center justify-center text-white">
@@ -41,13 +38,11 @@ export function Profile() {
       const file = e.target.files?.[0];
       if (!file) return;
       setImage(URL.createObjectURL(file));
-      console.log("New post image selected:", file);
   }
 
   const handleSubmitPost = async () => {
   if (!comment && !image) return;
 
-  console.log("📤 Enviando post...");
 
   const fileInput = document.querySelector("input[type='file']");
   const file = fileInput?.files?.[0] || null;
@@ -58,13 +53,11 @@ export function Profile() {
     });
 
     if (result) {
-      console.log("✅ Post creado:", result);
       setComment("");
       setImage(null);
     }
   };
 
-  console.log(currentUser)
   
 
   return (
@@ -134,7 +127,7 @@ export function Profile() {
      <section className=" flex flex-col items-center gap-10 overflow-y-auto scroll-hidden px-4 pt-10 pb-20 border-t border-gray-600">
         {
           posts ? posts.map((post) => (
-            <Posts key={post.id} name={currentUser.name} avatar={currentUser.avatar_url} postText={post.content} postImage={post.url}/>
+            <Posts key={post.id} id={post.id} currentUserId={currentUser.id} name={currentUser.name} avatar={currentUser.avatar_url} postText={post.content} postImage={post.url} likes={post.likes}/>
           )) : <p>No posts available.</p>
         }
         

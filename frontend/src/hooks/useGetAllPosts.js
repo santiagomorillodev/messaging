@@ -11,7 +11,6 @@ export default function useGetAllPosts() {
           });
           if (response.ok){
               const data = await response.json();
-              console.log("📦 All posts fetched:", data);
               setAllPosts(data);
           } else {
               console.error('Failed to fetch allPosts');
@@ -19,6 +18,5 @@ export default function useGetAllPosts() {
       };
       fetchAllPosts();
   }, []);
-  console.log(allPosts)
     return {allPosts};
 }

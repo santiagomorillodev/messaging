@@ -32,6 +32,5 @@ export default function useGetUser(idUser) {
       }
 
     }, [idUser])
-    console.log(user)
   return {user, loading, error: !loading && !user}
 }

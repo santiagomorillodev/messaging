@@ -26,7 +26,6 @@ export function Chat() {
   const { name, photo, chatId, status } = chatData || {};
   const { messages, loading, error } = useGetMessages({ conversationId: chatId });
   const [initialLoad, setInitialLoad] = useState(true);
-  console.log(name, photo, chatId)
   useEffect(() => {
     if (!loading && initialLoad) {
       setInitialLoad(false);
