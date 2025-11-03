@@ -12,6 +12,8 @@ class UserModel(Base):
     email = Column(String(100), nullable=False, unique=True)
     password = Column(String(100), nullable=False)
     avatar_url = Column(String(512), nullable=True)
+    pronouns = Column(String(4), nullable=True)
+    gender = Column(String(10), nullable=True)
     status = Column(Boolean, default=False)
     created = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -86,6 +88,22 @@ class UserModel(Base):
     likes = relationship(
         "LikeModel",
         back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+
+    notifications = relationship(
+        "NotificationModel",
+        foreign_keys="NotificationModel.user_id",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+
+    notifications_from_others = relationship(
+        "NotificationModel",
+        foreign_keys="NotificationModel.other_user_id",
+        back_populates="other_user",
         cascade="all, delete-orphan",
         passive_deletes=True
     )

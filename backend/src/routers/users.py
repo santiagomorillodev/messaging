@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, desc
 from schemas import UserCreate,UserRead,UserDeleteRequest,UserUpdate,UserLikes, UserPassword, UserEmail
-from models import UserModel, FollowerModel, LikeModel, RecentModel,PostModel
+from models import UserModel, FollowerModel, LikeModel, RecentModel,PostModel, NotificationModel
 from utils import get_user_email, get_by_username, verify_follow, get_user_by_id
 from config import get_db
 from security import hash_password, verify_password, create_access_token, get_current_user
@@ -352,3 +352,32 @@ async def toggle_likes(post: UserLikes, user: UserModel = Depends(get_current_us
         db.add(new_like)
         db.commit()
         return "Like"
+    
+
+@root.get('/notifications')
+def get_notifications(current_user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
+    try:
+        user = db.query(UserModel).filter(UserModel.id == current_user.id).first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, 
+                detail='Invalid credentials'
+            )
+        
+        notifications = db.query(NotificationModel).filter(NotificationModel.user_id == user.id).all()
+        if not notifications:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail='Notifications not found'
+            )
+
+        data = []
+        for notification in notifications:
+            id_user = notification.other_user_id
+            user = db.query(UserModel).filter(UserModel.id == id_user).first()
+            format_data = UserRead.model_validate(user)
+            data.append(format_data)
+        
+        return data
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f'Error: {str(e)}')

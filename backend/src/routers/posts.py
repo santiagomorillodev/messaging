@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException,status
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
-from models import PostModel, UserModel, FollowerModel
+from models import PostModel, UserModel, FollowerModel, NotificationModel, LikeModel
 from config import get_db
 from security import get_current_user
 from cloudinary import uploader, api
@@ -18,6 +18,7 @@ async def create_post(
     try:
         image_url = None
         public_id = None
+        print(file)
 
         if file:
             result = uploader.upload(file.file)
@@ -33,6 +34,19 @@ async def create_post(
         db.add(post)
         db.commit()
         db.refresh(post)
+        
+        following_ids = db.query(FollowerModel.followed_id).filter(FollowerModel.follower_id == current_user.id).all()
+        for id in following_ids:
+            followed_id = id[0]
+            new_notification = NotificationModel(
+                user_id = followed_id,
+                other_user_id = current_user.id
+            )
+            if new_notification:
+                db.add(new_notification)
+                db.commit()
+
+        
 
         return {
             "id": post.id,
@@ -49,16 +63,16 @@ async def create_post(
 @root.get('/{id}')
 def get_posts_current_user(id: int, db: Session = Depends(get_db)):
     try:
-        posts = db.query(PostModel)\
-                  .filter(PostModel.id_user == id)\
-                  .order_by(PostModel.id.desc())\
-                  .all()  # <--- importante
+        posts = db.query(PostModel).filter(PostModel.id_user == id).order_by(PostModel.id.desc()).all()  # <--- importante
 
         if not posts:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail='Posts not found'
             )
+        
+        likes = db.query(LikeModel).filter(LikeModel.user_id == id).all()
+        
 
         return posts
 

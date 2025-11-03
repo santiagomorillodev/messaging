@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 export default function useSearchUser() {
   const [query, setQuery] = useState('')
-    const [user, setUser] = useState({});
+    const [user, setUser] = useState(null);
 
+    useEffect(() => {
     if (!query || query.trim() === "") return;
-  useEffect(() => {
     console.log('x')
     async function getUserByUsername() {
         try{
