@@ -20,6 +20,7 @@ export function Bell ()  {
               content={notification.content}
               photo={notification.avatar_url}
               username={notification.username}
+              id={notification.id}
             />
           )) 
           : <main className="bg-white dark:bg-neutral-900 md:dark:bg-neutral-800 w-full flex flex-col gap-5 md:gap-0 mb-15 md:mb-0">

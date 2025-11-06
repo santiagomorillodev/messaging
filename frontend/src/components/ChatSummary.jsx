@@ -4,58 +4,55 @@ import { useDesktopView } from "../context/DesktopViewContext";
 import useGetUser from "../hooks/useGetUser";
 import Error from "./Error";
 import useGetLastMessage from "../hooks/useGetLastMessage";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useWebSocket } from "../context/WebSocketContext.jsx";
-import { formatMessageTime } from "../utils/formatMessageTime.js";
+import { useFormatMessageTime } from "../hooks/useFormatMessageTime.js";
 
-export const ChatSummary = ({ idUser, conversationId, content, refetchConversations }) => {
+export const ChatSummary = ({ idUser, conversationId }) => {
   const navigate = useNavigate();
   const isDesktop = useIsDesktop();
   const socket = useWebSocket();
 
   const { user, loading: userLoading, error: userError } = useGetUser(idUser);
-  const { lastMessage, loading: lastLoading, error: lastError, reload: reloadLast } = useGetLastMessage(conversationId);
+  const { lastMessage, loading: lastLoading, error: lastError } = useGetLastMessage(conversationId);
 
-  const loading = userLoading || lastLoading;
+  const [message, setMessage] = useState(null);
+  const [loaded, setLoaded] = useState(false);
+  const time = useFormatMessageTime(message?.created);
+
+  console.log(time)
+
+  const loading = !loaded && (userLoading || lastLoading);
   const error = userError || lastError;
 
-  let changeView = () => {};
-  try {
-    ({ changeView } = useDesktopView());
-  } catch {
-  }
+  // Guarda el último mensaje solo una vez cuando carga
+  useEffect(() => {
+    if (lastMessage && !loaded) {
+      setMessage(lastMessage);
+      setLoaded(true);
+    }
+  }, [lastMessage, loaded]);
 
+  // ✅ ESCUCHA MENSAJES EN TIEMPO REAL SIN CONSULTAR API
   useEffect(() => {
     if (!socket) return;
 
     const handleNewMessage = (event) => {
       const data = event.detail;
-      const { conversation_id, content } = data;
-
-      if (conversation_id === conversationId) {
-        reloadLast();
-      }
-
-      if (typeof refetchConversations === "function") {
-        refetchConversations();
+      if (data.conversation_id === conversationId) {
+        setMessage({
+          content: data.content,
+          created: data.createdAt,
+        });
       }
     };
 
     window.addEventListener("new-message", handleNewMessage);
     return () => window.removeEventListener("new-message", handleNewMessage);
-  }, [socket, conversationId, reloadLast, refetchConversations]);
+  }, [socket, conversationId]);
 
-  if (loading || error) {
-    return (
-      <Error
-        loading={loading}
-        error={error}
-        onRetry={() => {
-          reloadLast();
-        }}
-      />
-    );
-  }
+  if (loading) return <div className="p-4 opacity-50">Cargando chat...</div>;
+  if (error) return <Error error={error} />;
 
   if (!user) return null;
 
@@ -64,12 +61,13 @@ export const ChatSummary = ({ idUser, conversationId, content, refetchConversati
   const status = user.status;
   const photo = user.avatar_url;
   const chatId = conversationId;
-  const time = formatMessageTime(lastMessage.created)
-  
 
   const handleClick = () => {
     if (isDesktop) {
-      changeView("chat", { id, name, photo, chatId, status });
+      try {
+        const { changeView } = useDesktopView();
+        changeView("chat", { id, name, photo, chatId, status });
+      } catch {}
     } else {
       navigate("/direct", { state: { id, name, photo, chatId, status } });
     }
@@ -78,19 +76,22 @@ export const ChatSummary = ({ idUser, conversationId, content, refetchConversati
   return (
     <div
       onClick={handleClick}
-      className="w-full flex gap-2 bg-first md:dark:bg-neutral-800 dark:text-white px-4 py-2"
+      className="w-full flex gap-2 bg-first md:dark:bg-neutral-800 dark:text-white px-4 py-2 cursor-pointer"
     >
       <div className="flex relative">
-        <img src={photo} alt="user photo" width="50px" className="rounded-full min-w-[50px] h-[50px] object-cover"/>
-      <span className='absolute bottom-0 right-0'><i className={status ? "bx  bxs-circle text-green-500 rounded-full" : "bx  bxs-circle text-red-500 rounded-full"}  ></i> </span>
+        <img src={photo} alt="user" width="50" className="rounded-full min-w-[50px] h-[50px] object-cover" />
+        <span className="absolute bottom-0 right-0">
+          <i className={status ? "bx bxs-circle text-green-500" : "bx bxs-circle text-red-500"}></i>
+        </span>
       </div>
+
       <div className="w-full p-1 overflow-hidden">
         <div className="w-full flex justify-between">
           <span className="font-bold text-sm">{name}</span>
           <span className="text-end text-sm">{time ?? "—"}</span>
         </div>
         <p className="truncate text-neutral-400 text-sm">
-          {lastMessage?.content ?? content ?? ""}
+          {message?.content ?? ""}
         </p>
       </div>
     </div>

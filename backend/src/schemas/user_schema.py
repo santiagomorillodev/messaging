@@ -19,11 +19,11 @@ class UserCreate(UserBase):
             raise ValueError('Email inválido')
         return v
 
-    @validator('password')
-    def password_regex(cls, v):
-        if not re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', v):
-            raise ValueError('La contraseña debe tener al menos 8 caracteres, una mayúscula y un número')
-        return v
+    # @validator('password')
+    # def password_regex(cls, v):
+    #     if not re.match(r'^(?=.*[A-Z])(?=.*\d).{8,}$', v):
+    #         raise ValueError('La contraseña debe tener al menos 8 caracteres, una mayúscula y un número')
+        # return v
 
 class UserRead(UserBase):
     id: int

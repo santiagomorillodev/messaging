@@ -40,7 +40,8 @@ async def create_post(
             followed_id = id[0]
             new_notification = NotificationModel(
                 user_id = followed_id,
-                other_user_id = current_user.id
+                other_user_id = current_user.id,
+                content = 'ha subido un nuevo post!'
             )
             if new_notification:
                 db.add(new_notification)
@@ -67,8 +68,8 @@ def get_posts_current_user(id: int, db: Session = Depends(get_db)):
             db.query(PostModel)
             .filter(PostModel.id_user == id)
             .options(
-                joinedload(PostModel.user),      # carga datos del usuario
-                joinedload(PostModel.likes)      # carga likes del post
+                joinedload(PostModel.user),
+                joinedload(PostModel.likes)
             )
             .order_by(PostModel.id.desc())
             .all()

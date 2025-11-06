@@ -329,7 +329,6 @@ def get_user_post_all(
             .all()
         )
 
-        # 🔥 Serializar para evitar datos sensibles
         response = []
         for p in posts:
             response.append({
@@ -355,19 +354,6 @@ def get_user_post_all(
             detail=str(e)
         )
 
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
-
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f'Error: {str(e)}'
-        )
-
 @root.post("/api/like")
 async def toggle_likes(post: UserLikes, user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
     post_db = db.query(PostModel).filter(PostModel.id == post.post_id).first()
@@ -379,18 +365,29 @@ async def toggle_likes(post: UserLikes, user: UserModel = Depends(get_current_us
     if exist_like:
         db.delete(exist_like)
         db.commit()
-        print('dislike')
-        return "Dislike"
     else:
         new_like = LikeModel(user_id=user.id, post_id=post.post_id)
         db.add(new_like)
         db.commit()
-        print('new like')
-        return "Like"
     
+    following_ids = db.query(FollowerModel.followed_id).filter(FollowerModel.follower_id == user.id).all()
+    for id in following_ids:
+        followed_id = id[0]
+        new_notification = NotificationModel(
+            user_id = followed_id,
+            other_user_id = user.id,
+            content = 'Le ha dado like a tu post!'
+        )
+        if new_notification:
+            db.add(new_notification)
+            db.commit()
+    return status.HTTP_200_OK
 
 @root.get('/notifications')
-def get_notifications(current_user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_notifications(
+    current_user: UserModel = Depends(get_current_user), 
+    db: Session = Depends(get_db)
+):
     try:
         user = db.query(UserModel).filter(UserModel.id == current_user.id).first()
         if not user:
@@ -399,20 +396,67 @@ def get_notifications(current_user: UserModel = Depends(get_current_user), db: S
                 detail='Invalid credentials'
             )
         
-        notifications = db.query(NotificationModel).filter(NotificationModel.user_id == user.id).all()
+        notifications = (
+            db.query(NotificationModel)
+            .filter(NotificationModel.user_id == user.id)
+            .order_by(NotificationModel.created.desc())
+            .all()
+        )
+
         if not notifications:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, 
-                detail='Notifications not found'
-            )
+            return []  # <- No errors, just return empty list
 
         data = []
         for notification in notifications:
-            id_user = notification.other_user_id
-            user = db.query(UserModel).filter(UserModel.id == id_user).first()
-            format_data = UserRead.model_validate(user)
-            data.append(format_data)
-        
+            other = (
+                db.query(UserModel)
+                .filter(UserModel.id == notification.other_user_id)
+                .first()
+            )
+            
+            if not other:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Other user not found')
+
+            formatted = {
+                'id': notification.id,
+                "from_user_id": other.id,
+                "username": other.username,
+                "name": other.name,
+                "avatar_url": other.avatar_url,
+                "content": notification.content,
+                "created": notification.created
+            }
+
+            data.append(formatted)
+
         return data
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Error: {str(e)}"
+        )
+
+@root.delete('/api/notification/delete/{id}')
+def delete_notification(
+    id: int,
+    current_user: UserModel = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    try:
+        notification = db.query(NotificationModel).filter(and_((NotificationModel.user_id == current_user.id),(NotificationModel.id == id))).one_or_none()
+        if not notification:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Notification not found"
+            )
+
+        db.delete(notification)
+        db.commit()
+        return {"message": "Notification deleted"}
+
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f'Error: {str(e)}')
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )

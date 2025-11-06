@@ -95,34 +95,38 @@ useEffect(() => {
 
   // Enviar mensaje
   const handleSubmit = (event) => {
-  if (event.key === "Enter" && event.target.value.trim() !== "") {
-    const message = event.target.value.trim();
+  if (event.key !== "Enter") return;
+  if (event.shiftKey) return; // ✅ permite salto de línea si Shift+Enter
 
-    if (!socket) return console.warn("⚠️ No hay socket disponible");
-    if (socket.readyState !== WebSocket.OPEN) return console.warn("⚠️ WS cerrado");
+  event.preventDefault();
 
-    const payload = {
-      conversation_id: chatId,
-      content: message,
-      sender_id: currentUser.id,
-      created_at: new Date().toISOString(),
-    };
+  const message = event.target.value.trim();
+  if (!message) return;
 
-    console.log("📤 Enviando mensaje:", payload);
-    socket.send(JSON.stringify(payload));
-
-    // 🔹 Añade el mensaje al estado local instantáneamente
-    setLiveMessages((prev) => [...prev, payload]);
-
-    // 🔹 Notifica globalmente para actualizar ChatSummary
-    window.dispatchEvent(new CustomEvent("new-message", { detail: payload }));
-
-    event.target.value = "";
-    const iconsContainer = document.querySelector(".chat-icons");
-    if (iconsContainer) iconsContainer.style.display = "flex";
-
+  if (!socket || socket.readyState !== WebSocket.OPEN) {
+    console.warn("⚠️ WebSocket no conectado");
+    return;
   }
+
+  const payload = {
+    conversation_id: chatId,
+    content: message,
+    sender_id: currentUser.id,
+    created: new Date().toISOString(),
+  };
+  console.log(payload.created)
+
+  console.log("📤 Enviando mensaje:", payload);
+
+  socket.send(JSON.stringify(payload));
+  setLiveMessages((prev) => [...prev, payload]);
+  window.dispatchEvent(new CustomEvent("new-message", { detail: payload }));
+
+  event.target.value = "";
+  const iconsContainer = document.querySelector(".chat-icons");
+  if (iconsContainer) iconsContainer.style.display = "flex";
 };
+
 
 
 

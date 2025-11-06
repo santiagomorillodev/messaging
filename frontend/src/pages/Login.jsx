@@ -7,7 +7,6 @@ export function Login () {
 	const [username, setUsername] = useState('')
 	const [password, setPassword] = useState('')
 	const navigate = useNavigate()
-	console.log(username, password)
 
 	async function handleSubmit (e) {
 		e.preventDefault()
@@ -52,7 +51,7 @@ export function Login () {
 			</form>
 
 			<section className='w-[410px] h-14 bg-first flex justify-center items-center'>
-				<p className=''>No tienes una cuenta? <span className='text-blue-500'>Regístrate</span></p>
+				<p className=''>No tienes una cuenta? <span className='text-blue-500 cursor-pointer' onClick={() => navigate('/register')}>Regístrate</span></p>
 			</section>
 		</section>
 	)

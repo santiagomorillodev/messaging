@@ -7,10 +7,9 @@ export const WebSocketProvider = ({ children }) => {
   const { currentUser } = useGetCurrentUser();
   const [socket, setSocket] = useState(null);
 
-
   useEffect(() => {
     if (!currentUser) {
-      if (socket) socket.close();
+      socket?.close();
       setSocket(null);
       return;
     }
@@ -22,37 +21,25 @@ export const WebSocketProvider = ({ children }) => {
 
     if (!token) return;
 
-    // 🔹 Conexión global por usuario
     const ws = new WebSocket(`ws://localhost:8000/ws/user/${currentUser.id}?token=${token}`);
 
-    ws.onopen = () => console.log("✅ WS conectado globalmente");
-    ws.onclose = () => console.log("❌ WS cerrado");
-    ws.onerror = (e) => console.error("⚠️ Error WS:", e);
+    ws.onopen = () => console.log("✅ WS user connected");
+    ws.onclose = () => console.log("❌ WS user closed");
+    ws.onerror = (e) => console.error("⚠️ WS Error:", e);
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log("📩 Nuevo mensaje recibido:", data);
+      console.log("📩 WS message:", data);
 
-      // 🔹 Aquí puedes emitir un custom event para refrescar ChatSummary
       window.dispatchEvent(new CustomEvent("new-message", { detail: data }));
     };
 
     setSocket(ws);
 
-    const handleUnload = () => ws.close();
-    window.addEventListener("beforeunload", handleUnload);
-
-    return () => {
-      ws.close();
-      window.removeEventListener("beforeunload", handleUnload);
-    };
+    return () => ws.close();
   }, [currentUser]);
 
-  return (
-    <WebSocketContext.Provider value={socket}>
-      {children}
-    </WebSocketContext.Provider>
-  );
+  return <WebSocketContext.Provider value={socket}>{children}</WebSocketContext.Provider>;
 };
 
 export const useWebSocket = () => useContext(WebSocketContext);

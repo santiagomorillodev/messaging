@@ -6,6 +6,7 @@
         "backref",
         "cloudinary",
         "dotenv",
+        "joinedload",
         "jose",
         "mysql",
         "nubu",
