@@ -77,7 +77,7 @@ def get_posts_current_user(id: int, db: Session = Depends(get_db)):
 
         if not posts:
             raise HTTPException(
-                status_code=404,
+                status_code=status.HTTP_404_NOT_FOUND,
                 detail="Posts not found"
             )
         response = []

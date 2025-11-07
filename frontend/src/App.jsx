@@ -18,6 +18,7 @@ import { DesktopViewProvider } from './context/DesktopViewContext.jsx'
 import { WebSocketProvider } from './context/WebSocketContext.jsx'
 import useLogoutOnClose from './hooks/useLogoutOnClose.js'
 import DeleteAccount from './pages/DeleteAccount.jsx'
+import { ProfileOtherUser } from './pages/ProfileOtherUser.jsx'
 
 
 function App() {
@@ -63,7 +64,8 @@ function App() {
           <Route path='/inbox' element={<Inbox toggleDarkMode={toggleDarkMode} />} />
           <Route path='/settings' element={<Settings />} />
           <Route path='/direct' element={<Chat />} />
-          <Route path='/profile' element={<Profile />} />
+          <Route path='/profile/me' element={<Profile />} />
+          <Route path='/profile' element={<ProfileOtherUser />} />
           <Route path='/status' element={<Status />} />
           <Route path='/notification' element={<Bell />} />
           <Route path='/search' element={<SearchPage />} />

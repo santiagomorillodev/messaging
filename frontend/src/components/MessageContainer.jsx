@@ -1,6 +1,6 @@
 import React from 'react'
 
-export function MessageContainer({ contenido, sender }) {
+export function MessageContainer({ contenido, sender, status }) {
   return (
     <div className={sender 
       ? 'ml-auto bg-third text-white rounded-xl p-2 mb-2 max-w-xs flex flex-col w-[70%]' 
@@ -9,7 +9,7 @@ export function MessageContainer({ contenido, sender }) {
       {sender ?( 
         <div className="flex items-center justify-end gap-1 mt-1">
           <span className="text-xs">05:44</span>
-          <i className="bx bx-check text-green-400 text-xs"></i>
+          <i className={`bx ${status ? 'bx-check-circle' : 'bx-check'} text-blue-400 text-xs`}></i>
         </div>
        ):<div className="flex items-center justify-end gap-1 mt-1">
           <span className="text-xs">05:44</span>

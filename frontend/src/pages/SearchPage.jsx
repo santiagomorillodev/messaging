@@ -43,9 +43,9 @@ export function SearchPage() {
       <main className="mb-15">
         {query && (
           <UserSearchComponent
-            photo={user.avatar_url}
-            name={user.name}
-            username={`@${user.username}`}
+            photo={user?user.avatar_url:null}
+            name={user?user.name:'Searching...'}
+            username={`@${user&&user.username}`}
             currentSearch={true}
           />
         )}

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 import { useDesktopView } from "../context/DesktopViewContext";
-import useGetUser from "../hooks/useGetUser";
+import useGetUser from "../hooks/useGetUser.js";
 import Error from "./Error";
 import useGetLastMessage from "../hooks/useGetLastMessage";
 import { useEffect, useState } from "react";
@@ -62,7 +62,21 @@ export const ChatSummary = ({ idUser, conversationId }) => {
   const photo = user.avatar_url;
   const chatId = conversationId;
 
-  const handleClick = () => {
+  const handleClick = async () => {
+
+    const response = await fetch(`http://localhost:8000/inbox/message/change-status/${chatId}`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if(response.ok){
+      const data  = await response.json();
+      console.log(data);
+    }
+
     if (isDesktop) {
       try {
         const { changeView } = useDesktopView();

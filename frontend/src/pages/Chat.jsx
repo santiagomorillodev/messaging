@@ -131,6 +131,7 @@ useEffect(() => {
 
 
   const allMessages = liveMessages;
+  console.log(allMessages)
 
 
   return (
@@ -161,6 +162,7 @@ useEffect(() => {
               key={`${message.created_at}-${message.sender_id}-${idx}`}
               contenido={message.content}
               sender={currentUser.id === message.sender_id}
+              status={message.status}
             />
           ))
         ) : (

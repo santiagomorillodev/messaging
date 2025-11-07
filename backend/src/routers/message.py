@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from models import MessageModel, UserModel, ConversationModel
 from schemas import MessageDelete, MessageCreate, MessageRead, MessageRequest, MessageResponse, ConversationRequest
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from config import get_db
 from security import get_current_user
 
@@ -90,3 +90,20 @@ def delete_message(message: MessageRequest, current_user:UserModel = Depends(get
     except ValueError as error:
         print(error)
         
+@root.post('/message/change-status/{conversation_id}')
+def change_status(conversation_id: int, current_user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
+    try:
+        print('ok')
+        conversation_db = db.query(ConversationModel).filter(ConversationModel.id == conversation_id).first()
+        if not conversation_db:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='Conversation not found'
+            )
+        db.query(MessageModel).filter(and_(MessageModel.sender_id != current_user.id, MessageModel.conversation_id == conversation_id)).update({MessageModel.status : True})
+        db.commit()
+        return 'User status changed'
+        
+        
+    except ValueError as e:
+        raise HTTPException (status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))

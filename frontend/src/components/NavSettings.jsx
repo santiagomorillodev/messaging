@@ -51,7 +51,7 @@ export default function NavSettings() {
           </li>
           <li
             className="flex items-center gap-2 cursor-pointer text-black dark:text-white"
-            onClick={() => navigate("/profile")}
+            onClick={() => navigate("/profile/me")}
           >
             <i className="bx bx-street-view"></i>
             <span>Profile</span>
