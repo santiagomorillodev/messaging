@@ -21,7 +21,8 @@ export function SearchPage() {
     setRecentSearch((prev) => prev.filter((u) => u.id !== id));
   };
 
-  console.log(recentSearch);
+  console.log(user);
+  console.log(recentSearch)
 
   return (
     <section className="border-r border-neutral-500 md:min-w-[385px]">
@@ -33,7 +34,7 @@ export function SearchPage() {
           aria-label="Search"
           value={data}
           placeholder="Search..."
-          className="p-2 bg-neutral-600 w-full rounded-2xl outline-0"
+          className="p-2 bg-third w-full rounded-2xl outline-0"
           onChange={(e) => setData(e.target.value)}
           autoComplete="off"
         />
@@ -47,12 +48,15 @@ export function SearchPage() {
             name={user?user.name:'Searching...'}
             username={`@${user&&user.username}`}
             currentSearch={true}
+            id={user?user.id:null}
+            status={user?user.status:false}
+            followerCount={user?user.follows:0}
           />
         )}
 
         <p className="text-gray-400 text-sm px-4 py-2 font-bold">Recent</p>
 
-        <section className="flex flex-col gap-3 border-b border-neutral-500 pb-3">
+        <section className="flex flex-col border-b border-neutral-500 pb-3">
           {recentSearch && recentSearch.length > 0 ? (
             recentSearch.map((user) => (
               <UserSearchComponent

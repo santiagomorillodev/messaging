@@ -38,13 +38,18 @@
   }
 }
 
-:root{
-  --color-first: #1e1e27;
-  --color-second: #131318;
-  --color-third: #362846;
-  --color-fourth: #2e2b4e;
+:root {
+  --color-first: #d7d7ff70;
+  --color-second: #e9ebf3;
+  --color-third: #d1cfe7ad;
+  --color-fourth: #95afdf;
   --color-fifth: #4f3c58;
   --color-sixth: #ab73c5;
+  --color-seven: #e3e7ec5e;
+
+
+  /* Variable base corregida */
+  --bg-base: #efeaff;
 }
 
 
@@ -67,6 +72,9 @@
 }
 .bg-sixth {
   background-color: var(--color-sixth);
+}
+.bg-seven {
+  background-color: var(--color-seven);
 }
 
 textarea {

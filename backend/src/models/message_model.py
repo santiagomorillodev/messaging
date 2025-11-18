@@ -1,15 +1,18 @@
 from config import Base
-from sqlalchemy import Column, Text, Integer, ForeignKey, func, DateTime, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Text, Integer, ForeignKey, func, DateTime, Boolean, String
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+from datetime import datetime
 
 class MessageModel(Base):
     __tablename__ = 'Messages'
-    message_id = Column(Integer, primary_key=True, autoincrement=True)
-    sender_id = Column(Integer, ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
-    conversation_id = Column(Integer, ForeignKey('Conversations.id', ondelete='CASCADE'), nullable=True)
-    content = Column(Text, nullable=False)
-    created = Column(DateTime(timezone=True), server_default=func.now())
-    status = Column(Boolean, nullable=False, default=False)
+    message_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    sender_id: Mapped[int] = mapped_column(Integer, ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
+    conversation_id: Mapped[int] = mapped_column(Integer, ForeignKey('Conversations.id', ondelete='CASCADE'), nullable=True)
+    content: Mapped[str] = mapped_column(Text, nullable=True)
+    image_url: Mapped[str] = mapped_column(Text, nullable=True)
+    public_id: Mapped[int] = mapped_column(String(500), nullable=True)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    status: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     sender = relationship('UserModel', back_populates='messages')
     conversation = relationship('ConversationModel', back_populates='messages')

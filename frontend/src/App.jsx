@@ -4,7 +4,7 @@ import { Login } from './pages/Login'
 import { Register } from './pages/Register'
 import { Inbox } from './pages/Inbox'
 import { Settings } from './pages/Settings'
-import { Chat } from './pages/Chat'
+import Chat from './pages/Chat.jsx'
 import { Profile } from './pages/Profile'
 import { Status } from './pages/Status.jsx'
 import { Bell } from './pages/Bell.jsx'
@@ -19,6 +19,7 @@ import { WebSocketProvider } from './context/WebSocketContext.jsx'
 import useLogoutOnClose from './hooks/useLogoutOnClose.js'
 import DeleteAccount from './pages/DeleteAccount.jsx'
 import { ProfileOtherUser } from './pages/ProfileOtherUser.jsx'
+import GlobalBackground from './components/GlobalBackground.jsx'
 
 
 function App() {
@@ -56,7 +57,8 @@ function App() {
   }, [navigate])
 
   return (
-    <main className="bg-second text-black dark:text-white min-h-screen transition-colors">
+    <main className="text-black min-h-screen transition-colors bg-seven">
+      <GlobalBackground/>
       <WebSocketProvider>
         <Routes>
           <Route path='/' element={<Login />} />

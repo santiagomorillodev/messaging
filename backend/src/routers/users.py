@@ -3,12 +3,12 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_, desc
-from schemas import UserCreate,UserRead,UserDeleteRequest,UserUpdate,UserLikes, UserPassword, UserEmail
+from schemas import UserCreate,UserRead,UserDeleteRequest,UserUpdate,UserLikes, UserPassword, UserEmail, UserReadMe
 from models import UserModel, FollowerModel, LikeModel, RecentModel,PostModel, NotificationModel
 from utils import get_user_email, get_by_username, verify_follow, get_user_by_id
 from config import get_db
 from security import hash_password, verify_password, create_access_token, get_current_user
-from datetime import datetime
+from datetime import datetime, timedelta
 
 root = APIRouter(tags=["Users"])
 
@@ -67,9 +67,10 @@ def login(data:OAuth2PasswordRequestForm = Depends(), db:Session = Depends(get_d
             max_age=1800,
             expires=1800
         )
-        user_db.status = True
+        db.query(UserModel).filter(UserModel.id == user_db.id).update({UserModel.status: True})
         db.commit()
         db.refresh(user_db)
+        print(user_db.status)
         return response
     
     except ValueError as error:
@@ -82,7 +83,7 @@ def logout (current_user: UserModel = Depends(get_current_user), db:Session = De
         user = db.query(UserModel).filter(UserModel.id == current_user.id).first()
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
-        user.status = False
+        db.query(UserModel).filter(UserModel.id == user.id).update({UserModel.status: False})
         db.commit()
         db.refresh(user)
     except ValueError as e:
@@ -95,8 +96,8 @@ def get_users(db: Session = Depends(get_db)):
 
 
 @root.get("/id/{id}", response_model=UserRead)
-def get_user(id: int, db: Session = Depends(get_db)):
-    user = get_user_by_id(db, id)
+def get_user(id: int, current_user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
+    user = get_user_by_id(current_user, id, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -131,7 +132,7 @@ def get_username(username: str, current_user: UserModel = Depends(get_current_us
             db.add(new_search)
         else:
             # 👇 Si ya existe, solo actualiza la fecha
-            recent.created = datetime.utcnow()
+            db.query(RecentModel).filter(RecentModel.user_id == current_user.id).update({RecentModel.created: datetime.utcnow()})
 
         db.commit()
         return user
@@ -143,7 +144,7 @@ def get_username(username: str, current_user: UserModel = Depends(get_current_us
         )
 
         
-@root.get("/me", response_model=UserRead)
+@root.get("/me", response_model=UserReadMe)
 def current_user(user: UserModel = Depends(get_current_user)):
     return user
 
@@ -193,7 +194,7 @@ def change_password(data:UserPassword, user: UserModel = Depends(get_current_use
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     
     new_password = hash_password(data.new_password)
-    current_user.password = new_password
+    db.query(UserModel).filter(UserModel.id == current_user.id).update({UserModel.password: new_password})
     db.commit()
     db.refresh(current_user)
     return {"message": "Updated user"}
@@ -208,7 +209,7 @@ def change_email(data:UserEmail, user: UserModel = Depends(get_current_user), db
     if not verify_password(data.current_password, current_user.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     
-    current_user.email = data.email
+    db.query(UserModel).filter(UserModel.id == current_user.id).update({UserModel.email: data.email})
     db.commit()
     db.refresh(current_user)
     return {"message": "Updated user"}
@@ -218,7 +219,7 @@ def change_email(data:UserEmail, user: UserModel = Depends(get_current_user), db
 def get_recent_search(current_user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
     try:
         recent_searches = (db.query(RecentModel).filter(RecentModel.user_id == current_user.id).order_by(RecentModel.created.desc()).all())
-        users = [get_user_by_id(db, r.other_user) for r in recent_searches if get_user_by_id(db, r.other_user)]
+        users = [get_user_by_id(current_user, r.other_user, db) for r in recent_searches if get_user_by_id(current_user, r.other_user, db)]
         return users
 
     except ValueError as e:
@@ -267,19 +268,67 @@ def get_followed(user: UserModel = Depends(get_current_user)):
     return user.following
 
 
-@root.post("/follower")
-def follow(followed: int, current_user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
-    follow_user = verify_follow(current_user, followed, db)
-    if follow_user:
+@root.post("/api/follow/{followed}")
+async def toggle_follow(
+    followed: int,
+    current_user: UserModel = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # No puede seguirse a sí mismo
+    if followed == current_user.id:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail={"message": "You already follow this user"},
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You cannot follow yourself"
         )
 
-    new_follow = FollowerModel(follower_id=current_user.id, followed_id=followed)
-    db.add(new_follow)
-    db.commit()
-    return {"message": "200 ok"}
+    # Verificar si ya existe follow
+    exist_follow = (
+        db.query(FollowerModel)
+        .filter(
+            and_(
+                FollowerModel.follower_id == current_user.id,
+                FollowerModel.followed_id == followed
+            )
+        )
+        .first()
+    )
+
+    # Si ya existe → UNFOLLOW
+    if exist_follow:
+        db.delete(exist_follow)
+        db.commit()
+        following = False
+    else:
+        # Crear FOLLOW
+        new_follow = FollowerModel(
+            follower_id=current_user.id,
+            followed_id=followed
+        )
+        db.add(new_follow)
+
+        # Notificación
+        new_notification = NotificationModel(
+            user_id=followed,
+            other_user_id=current_user.id,
+            content="¡Te ha comenzado a seguir!"
+        )
+        db.add(new_notification)
+        db.commit()
+        following = True
+
+    # Obtener número actualizado de followers
+    follows_count = (
+        db.query(FollowerModel)
+        .filter(FollowerModel.followed_id == followed)
+        .count()
+    )
+
+    return {
+        "following": following,   # true/false
+        "follows": follows_count  # número actualizado
+    }
+
+
 
 
 @root.delete("/follower")
@@ -311,15 +360,23 @@ def get_user_post_all(
         )
 
     try:
-        following_ids = db.query(FollowerModel.followed_id)\
-            .filter(FollowerModel.follower_id == user.id)\
+        # Tiempo límite: hace 24 horas
+        time_limit = datetime.utcnow() - timedelta(hours=24)
+
+        following_ids = (
+            db.query(FollowerModel.followed_id)
+            .filter(FollowerModel.follower_id == user.id)
             .subquery()
+        )
 
         posts = (
             db.query(PostModel)
             .filter(
-                (PostModel.id_user == user.id) |
-                (PostModel.id_user.in_(following_ids))
+                and_(
+                    (PostModel.id_user == user.id) |
+                    (PostModel.id_user.in_(following_ids)),
+                    PostModel.created >= time_limit            # 👈 FILTRO NUEVO
+                )
             )
             .options(
                 joinedload(PostModel.user),
@@ -353,7 +410,7 @@ def get_user_post_all(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
-
+        
 @root.post("/api/like")
 async def toggle_likes(post: UserLikes, user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
     post_db = db.query(PostModel).filter(PostModel.id == post.post_id).first()

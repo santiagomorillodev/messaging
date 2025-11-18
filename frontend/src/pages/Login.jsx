@@ -25,8 +25,8 @@ export function Login () {
 		}
 	}
 	return (
-		<section className="h-dvh flex flex-col justify-center items-center gap-5 bg-second">
-			<form onSubmit={handleSubmit} className="bg-first w-[410px] h-[483px] flex flex-col justify-between p-14">
+		<section className="h-dvh flex flex-col justify-center items-center gap-5 bg-seven">
+			<form onSubmit={handleSubmit} className="bg-seven w-[410px] h-[483px] flex flex-col justify-between p-14">
 				<h1 className="text-xl text-left">Welcome to this messaging app</h1>
 				<p className="text-gray-400 text-left">Choose one of the option to go</p>
 
@@ -36,18 +36,18 @@ export function Login () {
 				<p className="text-left">Or continue with</p>
 
 				<div className="flex justify-between">
-					<div className="bg-fourth p-7 w-[92px] h-[47px] flex justify-center items-center">
+					<div className="bg-third p-7 w-[92px] h-[47px] flex justify-center items-center">
 						<img src={googleIcon} alt="google icon" width={32} height={32} />
 					</div>
-					<div className="bg-fourth p-7 w-[92px] h-[47px] flex justify-center items-center">
+					<div className="bg-third p-7 w-[92px] h-[47px] flex justify-center items-center">
 						<img src={facebookIcon} alt="facebook icon" width={32} height={32} />
 					</div>
-					<div className="bg-fourth p-7 w-[92px] h-[47px] flex justify-center items-center">
+					<div className="bg-third p-7 w-[92px] h-[47px] flex justify-center items-center">
 						<img src={githubIcon} alt="github icon" width={32} height={32} />
 					</div>
 				</div>
 
-				<button type="submit" className="bg-fifth text-white w-[218px] h-[43px] mx-auto cursor-pointer">Log in</button>
+				<button type="submit" className="bg-blue-500 text-white w-[218px] h-[43px] mx-auto cursor-pointer">Log in</button>
 			</form>
 
 			<section className='w-[410px] h-14 bg-first flex justify-center items-center'>

@@ -33,7 +33,6 @@ export function useFormatMessageTime(dateString) {
 
     setTime(formatted);
   }, [dateString]); // ✅ actualiza cuando cambia el mensaje
-  console.log("Formatted time:", time);
   return time;
 }
 

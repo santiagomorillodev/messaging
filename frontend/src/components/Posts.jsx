@@ -3,9 +3,10 @@ import useGetCurrentUser from "../hooks/useGetCurrentUser";
 
 export function Posts({ id, userId, name, avatar, postText, postImage, likes }) {
   const { currentUser, loading, error } = useGetCurrentUser();
-
   const [liked, setLiked] = useState(false);
   const [numLikes, setNumLikes] = useState(likes?.length || 0);
+  const [menu, setMenu] = useState(false);
+  const [visibility, setVisibility] = useState(true)
 
   useEffect(() => {
     if (!Array.isArray(likes) || !currentUser) return;
@@ -37,16 +38,47 @@ export function Posts({ id, userId, name, avatar, postText, postImage, likes }) 
     </div>
   );
 
+  const handleMenu = (e) => {
+    e.preventDefault();
+    setMenu(!menu)
+    console.log(menu)
+  };
+
+  const handleDelete = async () => {
+    console.log('Deleting post', id);
+    const response = await fetch(`http://localhost:8000/post/delete/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    if (response.ok) {
+      setVisibility(false);
+      console.log('Post deleted successfully');
+      return;
+    }
+    if (!response.ok) {
+      console.log('Error deleting post')
+    }
+    
+  };
+
   return (
-    <div className="w-full max-w-[498px] overflow-hidden border border-gray-400 rounded-2xl bg-neutral-800">
-      <div className="flex gap-2 items-center py-3 px-2 w-full">
-        <div className="w-12 h-12 overflow-hidden">
-          <img src={avatar} alt={`${name} avatar`} className="rounded-full w-12 h-12 object-cover border-2 border-[#9e8dda]" loading="lazy"/>
+    <div className={`w-full max-w-[498px] overflow-hidden border border-gray-400 rounded-2xl bg-gray-200 relative ${visibility ? '' : 'hidden'}`} onContextMenu={handleMenu} >
+      <div className="flex items-center justify-between py-3 px-2 w-full">
+        <div className="flex gap-2">
+          <div className="w-12 h-12 overflow-hidden">
+            <img src={avatar} alt={`${name} avatar`} className="rounded-full w-12 h-12 object-cover border-2 border-blue-500" loading="lazy"/>
+          </div>
+          <div>
+            <p className="font-bold text-sm">{name}</p>
+            <p className="text-sm">today</p>
+          </div>
         </div>
-        <div>
-          <p className="font-bold text-sm">{name}</p>
-          <p className="text-sm">today</p>
-        </div>
+        {menu && (
+        <div className=" text-white flex items-center  gap-2 z-10 cursor-pointer" onClick={handleDelete}>
+          <i className='bx bxs-trash text-red-500 text-3xl'></i>
+
+        </div>)}
       </div>
 
       {postImage && (
@@ -62,8 +94,11 @@ export function Posts({ id, userId, name, avatar, postText, postImage, likes }) 
           </button>
           <span className="text-lg mb-1">{numLikes}</span>
         </div>
-        <p className="text-white text-lg max-w-[70%]">{postText}</p>
+        <p className="text-[15px] max-w-[70%]">{postText}</p>
       </div>
+
+      
     </div>
+
   );
 }

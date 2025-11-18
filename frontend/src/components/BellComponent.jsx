@@ -23,10 +23,10 @@ export const BellComponent = ({content, photo, username, id}) => {
             <img src={photo} alt="" width='50px' className='rounded-full min-w-[50px] h-[50px] object-cover'/>
             <div className="">
                 <p>{username}</p>
-                <p className="text-gray-400 text-sm">{content}</p>
+                <p className="text-neutral-700 text-sm">{content}</p>
             </div>
         </div>
-        <button className='py-2 px-4 bg-red-500 rounded-3xl font-semibold' onClick={handleButton}>Suprimir</button>
+        <button className='py-2 px-4 bg-red-400 rounded-3xl font-semibold' onClick={handleButton}>Suprimir</button>
     </div>
   )
 }

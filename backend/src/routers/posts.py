@@ -107,26 +107,30 @@ def get_posts_current_user(id: int, db: Session = Depends(get_db)):
 
 
 
-@root.delete('/delete/{public_id}')
-async def delete_image(public_id: str ,current_user:UserModel = Depends(get_current_user), db:Session = Depends(get_db)):
+@root.delete('/delete/{id}')
+async def delete_image(id: str ,current_user:UserModel = Depends(get_current_user), db:Session = Depends(get_db)):
     try:
-        image = db.query(PostModel).filter(((PostModel.id_user == current_user.id) & (PostModel.public_id == public_id))).first()
-        if not image:
+        post = db.query(PostModel).filter(((PostModel.id_user == current_user.id) & (PostModel.id == id))).first()
+        if not post:
             raise HTTPException(status_code=404, detail="Image not found or already deleted")
         
-        image_cloudinary = api.resource(public_id)
+        if post.public_id:
         
-        if not image_cloudinary:
-            raise HTTPException(status_code=404, detail="Image not found or already deleted")
+            public_id = post.public_id
+            
+            image_cloudinary = api.resource(public_id)
+            
+            if not image_cloudinary:
+                raise HTTPException(status_code=404, detail="Image not found or already deleted")
+            
+            result = uploader.destroy(public_id)
+            
+            if result.get("result") != "ok":
+                raise HTTPException(status_code=404, detail="Image not found or already deleted")
         
-        result = uploader.destroy(public_id)
-        
-        if result.get("result") != "ok":
-            raise HTTPException(status_code=404, detail="Image not found or already deleted")
-        
-        db.delete(image)
+        db.delete(post)
         db.commit()
         
-        return {"message": "Image deleted successfully", "public_id": public_id}
+        return {"message": "Post deleted successfully", "id": id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

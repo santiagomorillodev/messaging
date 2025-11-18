@@ -1,21 +1,21 @@
 from config import Base
-from sqlalchemy import Column, Integer, DateTime, String, func, CheckConstraint, Boolean
-from sqlalchemy.orm import relationship
-
+from sqlalchemy import Integer, DateTime, String, func, CheckConstraint, Boolean
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+from datetime import datetime
 class UserModel(Base):
     __tablename__ = 'Users'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(50), nullable=False)
-    age = Column(Integer, nullable=False)
-    username = Column(String(50), nullable=False, unique=True)
-    description = Column(String(100), nullable=True)
-    email = Column(String(100), nullable=False, unique=True)
-    password = Column(String(100), nullable=False)
-    avatar_url = Column(String(512), nullable=True)
-    pronouns = Column(String(4), nullable=True)
-    gender = Column(String(10), nullable=True)
-    status = Column(Boolean, default=False)
-    created = Column(DateTime(timezone=True), server_default=func.now())
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(50), nullable=False)
+    age: Mapped[int] = mapped_column(Integer, nullable=False)
+    username: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
+    description: Mapped[str] = mapped_column(String(100), nullable=True)
+    email: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+    password: Mapped[str] = mapped_column(String(100), nullable=False)
+    avatar_url: Mapped[str] = mapped_column(String(512), nullable=True)
+    pronouns: Mapped[str] = mapped_column(String(4), nullable=False, default='https://res.cloudinary.com/dyteo3qdh/image/upload/v1760837715/usuario_yrdfvf.png')
+    gender: Mapped[str] = mapped_column(String(10), nullable=True)
+    status: Mapped[bool] = mapped_column(Boolean, default=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     __table_args__ = (
         CheckConstraint('age >= 18', name='check_age'),

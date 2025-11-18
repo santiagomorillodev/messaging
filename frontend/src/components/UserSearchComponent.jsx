@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function UserSearchComponent({ id, photo = null, name = 'Loading...', username='', onRemove, currentSearch =false, loading=false }) {
+export default function UserSearchComponent({ id, photo = null, name = 'Loading...', username='', status=false, followerCount=0, onRemove, currentSearch =false,  }) {
   const [error, setError] = useState(null);
   const [deleting, setDeleting] = useState(false)
   const navigate = useNavigate()
+
 
   const handleDelete = async () => {
     setError(null);
@@ -30,25 +31,9 @@ export default function UserSearchComponent({ id, photo = null, name = 'Loading.
     }
   };
 
-  // if (loading) {
-  //   return (
-  //     <div className="flex justify-between items-center px-4 py-3 animate-pulse">
-  //       <div className="flex gap-3 items-center">
-  //         <div className="rounded-full bg-neutral-700 w-[50px] h-[50px]" />
-  //         <div className="flex flex-col gap-2">
-  //           <div className="bg-neutral-700 h-4 w-36 rounded" />
-  //           <div className="bg-neutral-700 h-3 w-24 rounded" />
-  //         </div>
-  //       </div>
-  //       <div className="w-24" />
-  //     </div>
-  //   );
-  // }
-
-  // Render normal cuando no está cargando
   return (
-    <div className="flex justify-between items-center px-4 py-2" onClick={() => navigate(`/profile`, {state: {id}})}>
-      <div className="flex gap-3 items-center">
+    <div className="flex justify-between items-center px-4 py-2 bg-third border-b border-neutral-500">
+      <div className="flex gap-3 items-center" onClick={() => navigate(`/profile`, {state: {id, name, photo, status, followerCount}})}>
         <img
           src={photo}
           alt={name || "user"}
@@ -57,14 +42,14 @@ export default function UserSearchComponent({ id, photo = null, name = 'Loading.
         />
         <div>
           <p>{name || "Unknown"}</p>
-          <p className="text-gray-400 text-sm">{username}</p>
+          <p className="text-neutral-700 text-sm">{username}</p>
         </div>
       </div>
 
       <div className="flex items-center gap-2">
         {error && <span className="text-red-500 text-sm">{error}</span>}
         <button
-          className={currentSearch ? "hidden" : "py-2 px-4 bg-neutral-700 rounded-3xl font-semibold"}
+          className={currentSearch ? "hidden" : "py-2 px-4 bg-red-400 rounded-3xl font-semibold"}
           onClick={handleDelete}
           disabled={deleting}
         >

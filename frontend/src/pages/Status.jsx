@@ -30,7 +30,7 @@ export function Status ()  {
   return (
     <div className='flex flex-col gap-4  md:min-w-[385px] border-r border-neutral-500 mb-15 md:mb-0'>
       <Header sectionName={'Updates'}/>
-      <section className='flex flex-col gap-4 py-4 px-6'>
+      <section className='flex flex-col gap-4 py-4 px-6 mb-24'>
         {
           allPosts && allPosts.length > 0 ? (
             allPosts.map((post) => (

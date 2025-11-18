@@ -17,10 +17,11 @@ def search_conversation(current_user: UserModel, user_2: UserConversation, db:Se
         (ConversationModel.second_user_id == current_user.id))
     ).first()
 
-@root.post('/')
-def create_conversation(second_user: UserConversation, current_user:UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
+@root.post('/create/user/{user}')
+def create_conversation(user: int, current_user:UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
     try:
-        user = db.query(UserModel).filter(UserModel.id == second_user.id).first()
+        print(current_user)
+        user = db.query(UserModel).filter(UserModel.id == user).first()
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -36,10 +37,7 @@ def create_conversation(second_user: UserConversation, current_user:UserModel = 
         conversation = search_conversation(current_user, user, db)
         
         if conversation:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='The conversation already exist'
-            )
+            return conversation
         
         new_conversation = ConversationModel(
             first_user_id = current_user.id,
@@ -98,11 +96,7 @@ def get_all_conversation(current_user:UserModel = Depends(get_current_user), db:
         )
         ).all()      
         if not conversations:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail='Conversations not found'
-            )
-        print(conversations)
+            return []
         list_conversations: list[ConversationOut] = [ConversationOut.from_orm(conv) for conv in conversations]
         new_conversations = []
         for conv in list_conversations:
@@ -133,7 +127,7 @@ def get_last_message(id:int, db: Session = Depends(get_db)):
     except ValueError as e:
         print(e)
 
-@root.delete('/')
+@root.delete('/api/delete')
 def delete_conversation(user:UserConversation, current_user:UserModel = Depends(get_current_user), db:Session = Depends(get_db)):
     try:
         conversation = search_conversation(current_user, user, db)

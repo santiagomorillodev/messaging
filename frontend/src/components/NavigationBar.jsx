@@ -16,7 +16,7 @@ export function NavigationBar() {
 
   return (
     <nav>
-      <ul className='flex justify-between md:justify-start md:gap-5 py-3 px-10 md:px-7 fixed md:static bottom-0 left-0 w-full bg-second dark:bg-neutral-900 dark:text-white z-50 border-t border-neutral-500 md:border-0 md:flex-col md:w-2 md:items-center'>
+      <ul className='flex justify-between md:justify-start md:gap-5 py-3 px-10 md:px-7 fixed md:static bottom-0 left-0 w-full bg-gray-200 z-50 border-t border-neutral-500 md:border-0 md:flex-col md:w-2 md:items-center'>
         <li><i className='bx bx-message text-3xl cursor-pointer' onClick={() => go('/inbox')} /></li>
         <li><i className='bx bx-search text-3xl cursor-pointer' onClick={() => go('/search')} /></li>
         <li><i className='bx bx-bell text-3xl cursor-pointer' onClick={() => go('/notification')} /></li>

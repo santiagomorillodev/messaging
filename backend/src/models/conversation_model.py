@@ -1,13 +1,14 @@
 from config import Base
 from sqlalchemy import Column, Integer, DateTime, func, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
+from datetime import datetime
 
 class ConversationModel(Base):
     __tablename__ = 'Conversations'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    first_user_id = Column(Integer, ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
-    second_user_id = Column(Integer, ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
-    created = Column(DateTime(timezone=True), server_default=func.now())
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    first_user_id: Mapped[int] = mapped_column(Integer, ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
+    second_user_id: Mapped[int] = mapped_column(Integer, ForeignKey('Users.id', ondelete='CASCADE'), nullable=False)
+    created: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     first_user = relationship('UserModel', foreign_keys=[first_user_id])
     second_user = relationship('UserModel', foreign_keys=[second_user_id])

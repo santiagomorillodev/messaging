@@ -1,45 +1,47 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import useGetCurrentUser from "../hooks/useGetCurrentUser";
 
-const WebSocketContext = createContext(null);
+const WebSocketContext = createContext();
 
 export const WebSocketProvider = ({ children }) => {
   const { currentUser } = useGetCurrentUser();
   const [socket, setSocket] = useState(null);
+  const wsRef = useRef(null);
 
   useEffect(() => {
-    if (!currentUser) {
-      socket?.close();
-      setSocket(null);
-      return;
-    }
+    if (!currentUser?.id) return;
 
-    const token = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("access_token="))
-      ?.split("=")[1];
+    const ws = new WebSocket(`ws://localhost:8000/ws/user/${currentUser.id}`);
+    wsRef.current = ws;
 
-    if (!token) return;
-
-    const ws = new WebSocket(`ws://localhost:8000/ws/user/${currentUser.id}?token=${token}`);
-
-    ws.onopen = () => console.log("✅ WS user connected");
-    ws.onclose = () => console.log("❌ WS user closed");
-    ws.onerror = (e) => console.error("⚠️ WS Error:", e);
+    ws.onopen = () => console.log("🟢 WebSocket conectado");
+    ws.onclose = () => console.log("🔴 WebSocket cerrado");
+    ws.onerror = (err) => console.error("❌ WS error:", err);
 
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log("📩 WS message:", data);
+      try {
+        const data = JSON.parse(event.data);
+        console.log("📩 Mensaje recibido (context):", data);
+        console.log('hola')
 
-      window.dispatchEvent(new CustomEvent("new-message", { detail: data }));
+        window.dispatchEvent(new CustomEvent("new-message", { detail: data }));
+      } catch (e) {
+        console.error("Error parseando mensaje:", e);
+      }
     };
 
     setSocket(ws);
 
-    return () => ws.close();
-  }, [currentUser]);
+    return () => {
+      ws.close();
+    };
+  }, [currentUser?.id]);
 
-  return <WebSocketContext.Provider value={socket}>{children}</WebSocketContext.Provider>;
+  return (
+    <WebSocketContext.Provider value={socket}>
+      {children}
+    </WebSocketContext.Provider>
+  );
 };
 
 export const useWebSocket = () => useContext(WebSocketContext);
