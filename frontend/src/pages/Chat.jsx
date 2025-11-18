@@ -11,6 +11,8 @@ const Chat = () => {
   const navigate = useNavigate();
   const { currentUser } = useGetCurrentUser();
   const location = useLocation();
+  const [listDelete, setListDelete] = useState([])
+  const [Visibility, setVisibility] = useState([])
 
   const desktopContext = (() => {
     try {
@@ -125,6 +127,25 @@ const Chat = () => {
     }
   };
 
+  const handleDelete = async () => {
+    console.log('Messages to delete:', listDelete);
+    for (const id of listDelete) {
+      console.log('Deleting message with id:', id);
+      const response = await fetch(`http://localhost:8000/inbox/message/delete/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });1
+
+      if (response.ok) {
+        setVisibility(prev => [...prev, id])
+      }
+      if (!response.ok) {
+        console.log('Error deleting conversation')
+      }
+    }
+    setListDelete([])
+    
+  };
   if (!currentUser) return <p className="text-white">Cargando usuario...</p>;
   if (!name)
     return (
@@ -139,16 +160,18 @@ const Chat = () => {
       </div>
     );
 
-  return (
+
+    return (
     <div className="w-full h-screen flex flex-col overflow-hidden">
 
       {/* HEADER */}
-      <header className="flex justify-between items-center w-full bg-first p-2 bg-second">
-        <div className="flex items-center gap-2 cursor-pointer">
+      <header className="flex justify-between items-center w-full py-2 bg-neutral-800 text-white">
+        <div className="flex items-center  cursor-pointer">
+        <button onClick={() => navigate('/inbox')}><i className='bx  bx-chevron-left text-3xl cursor-pointer'></i> </button>
           <img
             src={photo}
             width="45px"
-            className="rounded-full min-w-[45px] h-[45px] object-cover"
+            className="rounded-full min-w-[45px] h-[45px] object-cover cursor-pointer mr-2"
             onClick={() => navigate("/profile", { state: { id } })}
           />
           <div>
@@ -157,20 +180,24 @@ const Chat = () => {
           </div>
         </div>
         <i
-          className="bx bx-x text-4xl pr-6 cursor-pointer"
-          onClick={() => navigate("/inbox")}
+          className={`bx bxs-trash text-4xl pr-6 cursor-pointer ${listDelete.length > 0 ? 'text-red-500' : ''}`}
+          onClick={handleDelete}
         ></i>
       </header>
 
       {/* MENSAJES */}
-      <main className="flex flex-col gap-3 py-4 pr-6 pl-3 overflow-y-auto scroll-hidden flex-grow">
+      <main className="flex flex-col gap-3 py-4 pr-6 pl-3 overflow-y-auto scroll-hidden flex-grow bg-neutral-700">
         {liveMessages.length > 0 ? (
           liveMessages.map((message, idx) => (
             <MessageContainer
               key={`${message.created}-${message.sender_id}-${idx}`}
+              id={message.message_id}
               contenido={message.content}
               image={message.image_url}
               sender={currentUser.id === message.sender_id}
+              listDelete={listDelete}
+              setListDelete={setListDelete}
+              Visibility={Visibility}
             />
           ))
         ) : (
@@ -199,7 +226,7 @@ const Chat = () => {
       )}
 
       {/* FOOTER */}
-      <footer className="bg-first w-full flex gap-2 items-center py-3 px-4">
+      <footer className="bg-neutral-800 w-full flex gap-2 items-center py-3 px-4">
 
         {/* Subir imagen */}
         {!inputContent.trim() && !selectedImage && (

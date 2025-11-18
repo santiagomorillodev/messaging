@@ -57,8 +57,7 @@ function App() {
   }, [navigate])
 
   return (
-    <main className="text-black min-h-screen transition-colors bg-seven">
-      <GlobalBackground/>
+    <main className="text-black min-h-screen transition-colors bg-neutral800">
       <WebSocketProvider>
         <Routes>
           <Route path='/' element={<Login />} />

@@ -35,7 +35,7 @@ export default function NavSettings() {
   };
 
   return (
-    <ul className="w-42 md:hidden">
+    <ul className="w-42 md:hidden z-50">
       <li className="relative group/dropdown">
         <label className="flex justify-end">
           <i className="bx bx-dots-vertical-rounded text-3xl cursor-pointer"></i>

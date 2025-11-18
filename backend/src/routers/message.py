@@ -118,14 +118,14 @@ def get_messages(id: int, current_user:UserModel = Depends(get_current_user), db
     except ValueError as error:
         print(error)
         
-@root.delete('/')
-def delete_message(message: MessageRequest, current_user:UserModel = Depends(get_current_user), db:Session = Depends(get_db)):
+@root.delete('/message/delete/{message}')
+def delete_message(message: int, current_user:UserModel = Depends(get_current_user), db:Session = Depends(get_db)):
     try:
-        message_db = db.query(MessageModel).filter(((MessageModel.message_id == message.id) & (MessageModel.sender_id == current_user.id))).first()
+        message_db = db.query(MessageModel).filter(((MessageModel.message_id == message) & (MessageModel.sender_id == current_user.id))).first()
         if not message_db:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Invalid credentials'
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='Message not found'
             )
         
         db.delete(message_db)

@@ -87,7 +87,7 @@ export function Inbox() {
 
   return (
     <>
-      <section className="md:min-w-[385px] min-h-screen border-r border-neutral-500 overflow-y-auto scroll-hidden">
+      <section className="md:min-w-[385px] min-h-screen border-r border-neutral-500 overflow-y-auto scroll-hidden bg-neutral-800">
         <Header sectionName={"Messaging App"} />
 
         <main className="md:dark:bg-neutral-800 w-full flex flex-col gap-5 md:gap-0 mb-15 md:mb-0 ">
