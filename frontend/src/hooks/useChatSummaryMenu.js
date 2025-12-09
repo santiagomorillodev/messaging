@@ -14,13 +14,11 @@ export const useChatSummaryMenu = ({ setMenu, setVisibility, setIsDelete }) => {
     [setMenu, setVisibility]
   );
 
-  // --- DETECTAR HOLD 1 SEGUNDO ---
   const startHold = useCallback(() => {
     isHolding.current = true;
 
     holdTimer.current = setTimeout(() => {
       if (isHolding.current) {
-        // abre menú por long press
         setMenu(true);
         setVisibility(false);
       }
@@ -32,7 +30,6 @@ export const useChatSummaryMenu = ({ setMenu, setVisibility, setIsDelete }) => {
     if (holdTimer.current) clearTimeout(holdTimer.current);
   }, []);
 
-  // --- DELETE REQUEST ---
   const deleteConversation = useCallback(
     async (idUser) => {
       const response = await fetch(

@@ -13,7 +13,7 @@ export function Bell ()  {
     <section className='md:min-w-[385px] border-r border-neutral-500'>
         <Header sectionName={'Notifications'}/>
 
-        <section className='flex flex-col gap-3 border-b border-neutral-500 py-3 bg-third mt-3'>
+        <section className='flex flex-col gap-3 border-b border-neutral-500 py-3 bg-second mt-3'>
           {notifications ? notifications.map((notification) => (
             <BellComponent
               key={notification.id}

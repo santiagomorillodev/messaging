@@ -9,6 +9,7 @@ from utils import get_user_email, get_by_username, verify_follow, get_user_by_id
 from config import get_db
 from security import hash_password, verify_password, create_access_token, get_current_user
 from datetime import datetime, timedelta
+from cloudinary import uploader, api
 
 root = APIRouter(tags=["Users"])
 
@@ -171,18 +172,76 @@ def delete_current_user(data: UserDeleteRequest, user: UserModel = Depends(get_c
     return {"message": "deleted"}
 
 
-@root.patch("/user/update")
-def update_user(data: UserUpdate, current_user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
-    print(data)
-    if not current_user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    update_data = data.dict(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(current_user, key, value)
+from fastapi import UploadFile, File, Form
 
+@root.patch("/update")
+async def update_user(
+    name: str = Form(None),
+    username: str = Form(None),
+    email: str = Form(None),
+    password: str = Form(None),
+    description: str = Form(None),
+
+    avatar: UploadFile = File(None),
+    banner: UploadFile = File(None),
+
+    current_user: UserModel = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    # ------------------------------
+    # ⚡ UPDATE TEXT FIELDS
+    # ------------------------------
+    if name:
+        current_user.name = name
+
+    if username:
+        current_user.username = username
+
+    if email:
+        current_user.email = email
+
+    if description:
+        current_user.description = description
+
+    if password:
+        current_user.password = hash_password(password)
+
+    # ------------------------------
+    # ⚡ UPDATE AVATAR
+    # ------------------------------
+    if avatar:
+        # eliminar avatar anterior si existe
+        if current_user.avatar_public_id:
+            uploader.destroy(current_user.avatar_public_id)
+
+        upload_result = uploader.upload(avatar.file)
+        current_user.avatar_url = upload_result.get("secure_url")
+        current_user.avatar_public_id = upload_result.get("public_id")
+
+    # ------------------------------
+    # ⚡ UPDATE BANNER
+    # ------------------------------
+    if banner:
+        if current_user.banner_public_id:
+            uploader.destroy(current_user.banner_public_id)
+
+        upload_result = uploader.upload(banner.file)
+        current_user.banner_url = upload_result.get("secure_url")
+        current_user.banner_public_id = upload_result.get("public_id")
+
+    # ------------------------------
+    # ⚡ SAVE CHANGES
+    # ------------------------------
     db.commit()
     db.refresh(current_user)
-    return {"message": "Updated user"}
+
+    return {"message": "User updated successfully"}
+
+
+
 
 @root.patch('/change/password')
 def change_password(data:UserPassword, user: UserModel = Depends(get_current_user), db: Session = Depends(get_db)):

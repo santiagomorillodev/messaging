@@ -35,13 +35,28 @@ export default function NavSettings() {
   };
 
   return (
-    <ul className="w-42 md:hidden z-50">
+    <ul className="w-42 md:hidden fixed top-2 right-1 z-[99999]">
       <li className="relative group/dropdown">
         <label className="flex justify-end">
-          <i className="bx bx-dots-vertical-rounded text-3xl cursor-pointer"></i>
+          <i className="bx bx-dots-vertical-rounded text-3xl cursor-pointer text-white"></i>
           <input type="checkbox" className="hidden" />
         </label>
-        <ul className="absolute right-0 opacity-0 pointer-events-none group-has-checked/dropdown:opacity-100 group-has-checked/dropdown:pointer-events-auto top-[calc(100%+11px)] bg-white dark:bg-neutral-900 rounded-2xl w-full p-4 shadow-2xl flex flex-col gap-3 transition-all duration-300">
+
+        {/* Dropdown */}
+        <ul
+          className="
+        absolute right-0 top-[calc(100%+11px)]
+        opacity-0 pointer-events-none
+        group-has-checked/dropdown:opacity-100
+        group-has-checked/dropdown:pointer-events-auto
+
+        bg-first 
+        rounded-2xl w-full p-4 shadow-2xl flex flex-col gap-3
+        transition-all duration-300
+
+        z-[99999]
+      "
+        >
           <li
             className="flex items-center gap-2 cursor-pointer text-black dark:text-white"
             onClick={handleLogout}
@@ -49,6 +64,7 @@ export default function NavSettings() {
             <i className="bx bx-run"></i>
             <span>Log out</span>
           </li>
+
           <li
             className="flex items-center gap-2 cursor-pointer text-black dark:text-white"
             onClick={() => navigate("/profile/me")}
@@ -56,6 +72,7 @@ export default function NavSettings() {
             <i className="bx bx-street-view"></i>
             <span>Profile</span>
           </li>
+
           <li
             className="flex items-center gap-2 cursor-pointer text-black dark:text-white"
             onClick={() => navigate("/settings")}
@@ -63,6 +80,7 @@ export default function NavSettings() {
             <i className="bx bx-lock"></i>
             <span>Settings</span>
           </li>
+
           <li className="flex items-center gap-2 cursor-pointer text-black dark:text-white">
             <i className="bx bx-moon"></i>
             <span>Dark mode</span>

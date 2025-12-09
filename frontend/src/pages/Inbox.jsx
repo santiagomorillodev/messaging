@@ -1,13 +1,26 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import { ChatSummary } from "../components/ChatSummary";
 import Header from "../components/Header";
 import { NavigationBar } from "../components/NavigationBar";
 import GetAllConversation from "../hooks/GetAllConversation";
 import useGetCurrentUser from "../hooks/useGetCurrentUser";
+import { UserContext } from "../context/UserContext";
+import { useWebSocket } from "../context/WebSocketContext";
 
 export function Inbox() {
   const { conversations } = GetAllConversation();
   const { currentUser } = useGetCurrentUser();
+  const { currentUserContext, setCurrentUserContext } = useContext(UserContext);
+  const { unreadByConversation } = useWebSocket();
+  useEffect(() => {
+    if (currentUser) {
+      setCurrentUserContext(currentUser);
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    console.log("Nuevo valor del contexto:", currentUserContext);
+  }, [currentUserContext]);
 
   // ✅ Estado local para controlar si ya cargó las conversaciones
   const [localConversations, setLocalConversations] = useState([]);
@@ -71,7 +84,7 @@ export function Inbox() {
   // 🔹 Render base
   if (!localConversations?.length) {
     return (
-      <section className="md:min-w-[385px] border-r border-neutral-500  scroll-hidden">
+      <section className="md:min-w-[385px] border-r border-neutral-500  scroll-hidden select-none">
         <Header sectionName={"Chats"} />
         <main className="bg-white dark:bg-neutral-900 md:dark:bg-neutral-800 w-full flex flex-col gap-5 md:gap-0 md:mb-0">
           <p className="text-center mt-4 text-neutral-400">
@@ -87,7 +100,7 @@ export function Inbox() {
 
   return (
     <>
-      <section className="md:min-w-[385px] min-h-screen border-r border-neutral-500 overflow-y-auto scroll-hidden bg-neutral-800">
+      <section className="md:min-w-[385px] min-h-screen border-r border-neutral-500 overflow-y-auto scroll-hidden select-none">
         <Header sectionName={"Messaging App"} />
 
         <main className="md:dark:bg-neutral-800 w-full flex flex-col gap-5 md:gap-0 mb-15 md:mb-0 ">
@@ -95,7 +108,7 @@ export function Inbox() {
             <input
               type="text"
               placeholder="Search for people"
-              className="bg-third text-black placeholder:text-neutral-600 p-2 rounded-2xl w-full outline-0"
+              className="bg-second text-black placeholder:text-neutral-400 p-2 rounded-2xl w-full outline-0"
             />
           </div>
 
@@ -107,6 +120,7 @@ export function Inbox() {
                 conversationId={conversation.id}
                 lastMessage={conversation.last_message}
                 updatedAt={conversation.updated_at}
+                unread={unreadByConversation[conversation.id] || 0}
               />
             ))}
           </section>

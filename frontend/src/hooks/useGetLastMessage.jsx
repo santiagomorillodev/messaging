@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 
 export default function useGetLastMessage(conversationId) {
   const [lastMessage, setLastMessage] = useState(null);
+  const [countUnreadMessages, setCountUnreadMessages] = useState(0)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [reloadFlag, setReloadFlag] = useState(0);
@@ -31,8 +32,12 @@ export default function useGetLastMessage(conversationId) {
 
         if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
         const data = await res.json();
-        const message = data?.message ?? data;
-        if (mounted) setLastMessage(message ?? null);
+        const message = data?.['last_message'] ?? data;
+        const countMessages = data?.['count_unread_messages']
+        if (mounted) {
+          setLastMessage(message ?? null)
+          setCountUnreadMessages(countMessages)
+        };
       } catch (err) {
         if (err.name === "AbortError") {
         } else {
@@ -56,5 +61,5 @@ export default function useGetLastMessage(conversationId) {
   }, [conversationId, reloadFlag]);
 
 
-  return { lastMessage, loading, error, reload };
+  return { lastMessage,countUnreadMessages, loading, error, reload };
 }

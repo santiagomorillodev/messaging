@@ -34,7 +34,7 @@ export function SearchPage() {
           aria-label="Search"
           value={data}
           placeholder="Search..."
-          className="p-2 bg-third w-full rounded-2xl outline-0"
+          className="p-2 bg-second placeholder:text-gray-400 w-full rounded-2xl outline-0"
           onChange={(e) => setData(e.target.value)}
           autoComplete="off"
         />

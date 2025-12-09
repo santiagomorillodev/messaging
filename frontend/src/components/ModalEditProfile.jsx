@@ -1,134 +1,194 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function ModalEditProfile({ photo , name, username, pronouns, bio, gender}) {
-    const [showModalEditProfile, setShowModalEditProfile] = useState(false)
-    const navigate = useNavigate();
-    const handleSubmit = async (e) => {
+export default function ModalEditProfile({
+  photo,
+  banner,
+  name,
+  username,
+  pronouns,
+  bio,
+  gender,
+}) {
+  const [showModalEditProfile, setShowModalEditProfile] = useState(false);
+
+  const [avatar, setAvatar] = useState(null);
+  const [bannerImage, setBannerImage] = useState(null);
+
+  const navigate = useNavigate();
+
+  const originalData = {
+    name,
+    username,
+    pronouns,
+    description: bio,
+    gender,
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData(e.target);
-    const updateData = {};
+    const formData = new FormData();
+    const form = new FormData(e.target);
 
-    // Valores originales del usuario (los que llegaron por props)
-    const originalData = {
-      name: name,
-      username: username,
-      pronouns: pronouns,
-      description: bio,
-      gender: gender,
-    };
+    let usernameChanged = false;
 
-    for (const [key, value] of formData.entries()) {
-      // si el valor cambió y no está vacío, lo guardamos
+    // Campos de texto
+    for (const [key, value] of form.entries()) {
       if (value && value !== originalData[key]) {
-        updateData[key] = value;
+        formData.append(key, value);
+
+        if (key === "username" && value !== username) {
+          usernameChanged = true;
+        }
       }
     }
 
+    // Avatar
+    if (avatar) {
+      formData.append("avatar", avatar);
+    }
 
-    if (Object.keys(updateData).length === 0) {
-      alert("No hay cambios");
+    // Banner
+    if (bannerImage) {
+      formData.append("banner", bannerImage);
+    }
+
+    if ([...formData.entries()].length === 0) {
+      alert("No hay cambios para guardar");
       return;
     }
 
-    console.log("Enviando datos actualizados:", updateData);
-
-    await fetch("http://localhost:8000/user/update", { // <-- tu endpoint real
-      credentials: "include",
+    const res = await fetch("http://localhost:8000/update", {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updateData),
+      credentials: "include",
+      body: formData,
     });
-    console.log("Perfil actualizado:", updateData);
-    if (originalData != updateData.username) navigate('/')
+
+    if (!res.ok) {
+      alert("Error al actualizar el usuario");
+      return;
+    }
+
+    setShowModalEditProfile(false);
+
+    if (usernameChanged) {
+      navigate("/");
+    }
   };
+
   return (
     <>
-        <button className="py-1 px-5 bg-fourth rounded-sm cursor-pointer " onClick={() => setShowModalEditProfile(true)}>Edit profile</button>
-        {showModalEditProfile && (
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-10">
-                <div className="w-full md:w-xl h-[90%]  bg-white dark:bg-neutral-900 rounded-xl flex flex-col gap-2 overflow-y-auto scroll-hidden">
-                  <ul className="flex justify-between pt-2 px-4 font-semibold text-lg">
-                    <li className="px-2"></li>
-                    <li onClick={() => setShowModalEditProfile(false)}><i className='bx  bx-x text-black dark:text-white text-3xl cursor-pointer'></i> </li>
-                  </ul>
-        
-                  <form onSubmit={handleSubmit} className="p-4">
-                    <div className="flex flex-col items-center gap-2 mb-4">
-                      <img src={photo} alt="" className="w-24 h-24 rounded-full object-cover mx-auto"/>
-                      <button className="text-blue-400">Change profile photo</button>
-                    </div>
+      <button
+        className="py-1 px-5 bg-third text-white rounded-sm cursor-pointer"
+        onClick={() => setShowModalEditProfile(true)}
+      >
+        Edit profile
+      </button>
 
-                    <div className="flex flex-col gap-4">
-                      {/* Name */}
-                      <div className="m-4 px-4 py-1 border rounded-md">
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-400 p-0 m-0">Name</label>
-                        <input
-                          type="text"
-                          name="name"
-                          defaultValue={name}
-                          className="block w-full p-0 rounded-md shadow-sm text-sm outline-0"
-                        />
-                      </div>
+      {showModalEditProfile && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-10">
+          <div className="w-full md:w-xl h-[90%] bg-white dark:bg-neutral-900 rounded-xl flex flex-col gap-2 overflow-y-auto scroll-hidden">
+            <ul className="flex justify-between pt-2 px-4 font-semibold text-lg">
+              <li></li>
+              <li>
+                <i
+                  onClick={() => setShowModalEditProfile(false)}
+                  className="bx bx-x text-black dark:text-white text-3xl cursor-pointer"
+                ></i>
+              </li>
+            </ul>
 
-                      {/* Username */}
-                      <div className="m-4 px-4 py-1 border rounded-md">
-                        <label htmlFor="username" className="block text-sm font-medium text-gray-400 p-0 m-0">Username</label>
-                        <input
-                          type="text"
-                          name="username"
-                          defaultValue={username}
-                          className="block w-full p-0 rounded-md shadow-sm text-sm outline-0"
-                        />
-                      </div>
-                      {/* Pronouns */}
-                      <div className="m-4 px-4 py-1 border rounded-md">
-                        <label htmlFor="pronouns" className="block text-sm font-medium text-gray-400 p-0 m-0">Pronouns</label>
-                        <input
-                          type="text"
-                          name="pronouns"
-                          defaultValue={pronouns}
-                          className="block w-full p-0 rounded-md shadow-sm text-sm outline-0"
-                        />
-                      </div>
+            <form onSubmit={handleSubmit} className="p-4">
+              {/* Banner */}
+              <div className="w-full relative mb-6">
+                <img
+                  src={bannerImage ? URL.createObjectURL(bannerImage) : banner}
+                  className="w-full h-40 object-cover rounded-md"
+                />
 
-                      {/* Description */}
+                <label
+                  htmlFor="changeBannerInput"
+                  className="absolute bottom-2 right-2 px-3 py-1 bg-black/50 text-white text-xs cursor-pointer rounded-md"
+                >
+                  Change banner
+                </label>
 
-                      <div className="m-4 px-4 py-1 border rounded-md">
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-400 p-0 m-0">Description</label>
-                        <input
-                          type="text"
-                          name="description"
-                          defaultValue={bio}
-                          className="block w-full p-0 rounded-md shadow-sm text-sm outline-0"
-                        />
-                      </div>
-
-                      {/* Gender */}
-
-                      <div className="m-4 px-4 py-1 border rounded-md">
-                        <label htmlFor="gender" className="block text-sm font-medium text-gray-400 p-0 m-0">Gender</label>
-                        <input
-                          type="text"
-                          name="gender"
-                          defaultValue={bio}
-                          className="block w-full p-0 rounded-md shadow-sm text-sm outline-0"
-                        />
-                      </div>
-
-                    </div>
-
-                    <button type="submit" className="mt-4 w-full bg-blue-500 text-white py-2 rounded-md">
-                      Save Changes
-                    </button>
-                  </form>
-
-                </div>
+                <input
+                  type="file"
+                  id="changeBannerInput"
+                  className="hidden"
+                  onChange={(e) => setBannerImage(e.target.files[0])}
+                />
               </div>
-            )}
+
+              {/* Avatar */}
+              <div className="flex flex-col items-center gap-2 mb-4">
+                <img
+                  src={avatar ? URL.createObjectURL(avatar) : photo}
+                  className="w-24 h-24 rounded-full object-cover border-2 border-white -mt-12"
+                />
+                <label
+                  htmlFor="changeAvatarInput"
+                  className="text-blue-400 cursor-pointer"
+                >
+                  Change profile photo
+                </label>
+                <input
+                  type="file"
+                  id="changeAvatarInput"
+                  className="hidden"
+                  onChange={(e) => setAvatar(e.target.files[0])}
+                />
+              </div>
+
+              {/* Campos */}
+              <InputField name="name" label="Name" defaultValue={name} />
+
+              <InputField
+                name="username"
+                label="Username"
+                defaultValue={username}
+              />
+
+              <InputField
+                name="pronouns"
+                label="Pronouns"
+                defaultValue={pronouns}
+              />
+
+              <InputField
+                name="description"
+                label="Description"
+                defaultValue={bio}
+              />
+
+              <InputField name="gender" label="Gender" defaultValue={gender} />
+
+              <button
+                type="submit"
+                className="mt-4 w-full bg-blue-500 text-white py-2 rounded-md"
+              >
+                Save Changes
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </>
-  )
+  );
+}
+
+function InputField({ name, label, defaultValue }) {
+  return (
+    <div className="m-4 px-4 py-1 border rounded-md">
+      <label className="block text-sm text-gray-400">{label}</label>
+      <input
+        type="text"
+        name={name}
+        defaultValue={defaultValue}
+        className="w-full p-0 bg-transparent outline-none text-sm"
+      />
+    </div>
+  );
 }

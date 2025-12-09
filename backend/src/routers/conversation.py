@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Depends, WebSocket, WebSocketDisconnect
 from models import UserModel, ConversationModel, MessageModel
 from schemas import UserConversation, ConversationOut
-from sqlalchemy import or_, desc
+from sqlalchemy import or_, desc, select, func
 from sqlalchemy.orm import Session
 from config import get_db
 from security import get_current_user
@@ -121,11 +121,44 @@ def get_all_conversation(current_user:UserModel = Depends(get_current_user), db:
         print(error)
         
 @root.get('/{id}/last-message')
-def get_last_message(id:int, db: Session = Depends(get_db)):
+def get_last_message(id:int, current_user:UserModel = Depends(get_current_user), db: Session = Depends(get_db)):
     try:
-        return db.query(MessageModel).filter(MessageModel.conversation_id == id).order_by(MessageModel.created.desc()).first()
+        last_message = db.query(MessageModel).filter(MessageModel.conversation_id == id).order_by(MessageModel.created.desc()).first()
+        unread_messages = (
+            select(func.count())
+            .select_from(MessageModel)
+            .where(
+                MessageModel.conversation_id == id,
+                MessageModel.sender_id != current_user.id,
+                MessageModel.status == False
+            )
+        )
+        count_unread_message = db.execute(unread_messages).scalar_one()
+        return {
+            "last_message": last_message,
+            "count_unread_messages": count_unread_message
+        }
+        
     except ValueError as e:
         print(e)
+
+
+@root.get("/unread")
+def unread_messages(current_user = Depends(get_current_user), db: Session = Depends(get_db)):
+    rows = db.execute(
+        select(
+            MessageModel.conversation_id,
+            func.count().label("unread")
+        )
+        .where(
+            MessageModel.sender_id != current_user.id,
+            MessageModel.status == False
+        )
+        .group_by(MessageModel.conversation_id)
+    ).all()
+
+    return { row.conversation_id: row.unread for row in rows }
+
 
 @root.delete('/api/delete')
 def delete_conversation(user:UserConversation, current_user:UserModel = Depends(get_current_user), db:Session = Depends(get_db)):

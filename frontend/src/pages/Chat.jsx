@@ -7,12 +7,12 @@ import { MessageContainer } from "../components/MessageContainer";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const Chat = () => {
-  const socket = useWebSocket();
+  const { socket, send } = useWebSocket();
   const navigate = useNavigate();
   const { currentUser } = useGetCurrentUser();
   const location = useLocation();
-  const [listDelete, setListDelete] = useState([])
-  const [Visibility, setVisibility] = useState([])
+  const [listDelete, setListDelete] = useState([]);
+  const [Visibility, setVisibility] = useState([]);
 
   const desktopContext = (() => {
     try {
@@ -36,6 +36,8 @@ const Chat = () => {
   const { messages = [], loading = false } = useGetMessages({
     conversationId: chatId,
   });
+
+  const otherUserId = id
 
   useEffect(() => {
     if (!loading && initialLoad) {
@@ -69,30 +71,24 @@ const Chat = () => {
     return () => window.removeEventListener("new-message", handleNewMessage);
   }, [socket, chatId]);
 
-  // =====================================================================================
-  // 🟣 ENVIAR TEXTO O IMAGEN (SIN DUPLICADOS EN FRONT)
-  // =====================================================================================
+  
   const sendMessage = () => {
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
-    // 📌 Enviar imagen
+    const payload = {
+      sender_id: currentUser.id,
+      recipient_id: otherUserId,
+      conversation_id: chatId,
+      content: inputContent || null,
+      image_base64: null,
+    };
+
     if (selectedImage) {
       const reader = new FileReader();
 
       reader.onload = () => {
-        const payload = {
-          type: "image",
-          sender_id: currentUser.id,
-          conversation_id: chatId,
-          content: inputContent || null,
-          image_base64: reader.result,
-          created: new Date().toISOString(),
-        };
-
+        payload.image_base64 = reader.result;
         socket.send(JSON.stringify(payload));
-
-        // ❌ no agregamos a liveMessages aquí
-
         setSelectedImage(null);
         setInputContent("");
       };
@@ -101,22 +97,7 @@ const Chat = () => {
       return;
     }
 
-    // 📌 Enviar texto
-    if (!inputContent.trim()) return;
-
-    const payload = {
-      type: "message",
-      sender_id: currentUser.id,
-      conversation_id: chatId,
-      content: inputContent.trim(),
-      image_base64: null,
-      created: new Date().toISOString(),
-    };
-
-    socket.send(JSON.stringify(payload));
-
-    // ❌ no hacemos setLiveMessages aquí
-
+    send(JSON.stringify(payload));
     setInputContent("");
   };
 
@@ -128,23 +109,26 @@ const Chat = () => {
   };
 
   const handleDelete = async () => {
-    console.log('Messages to delete:', listDelete);
+    console.log("Messages to delete:", listDelete);
     for (const id of listDelete) {
-      console.log('Deleting message with id:', id);
-      const response = await fetch(`http://localhost:8000/inbox/message/delete/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });1
+      console.log("Deleting message with id:", id);
+      const response = await fetch(
+        `http://localhost:8000/inbox/message/delete/${id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+      1;
 
       if (response.ok) {
-        setVisibility(prev => [...prev, id])
+        setVisibility((prev) => [...prev, id]);
       }
       if (!response.ok) {
-        console.log('Error deleting conversation')
+        console.log("Error deleting conversation");
       }
     }
-    setListDelete([])
-    
+    setListDelete([]);
   };
   if (!currentUser) return <p className="text-white">Cargando usuario...</p>;
   if (!name)
@@ -160,14 +144,14 @@ const Chat = () => {
       </div>
     );
 
-
-    return (
-    <div className="w-full h-screen flex flex-col overflow-hidden">
-
+  return (
+    <div className="w-full h-screen flex flex-col overflow-hidden select-none">
       {/* HEADER */}
-      <header className="flex justify-between items-center w-full py-2 bg-neutral-800 text-white">
+      <header className="flex justify-between items-center w-full py-2 bg-first text-white">
         <div className="flex items-center  cursor-pointer">
-        <button onClick={() => navigate('/inbox')}><i className='bx  bx-chevron-left text-3xl cursor-pointer'></i> </button>
+          <button onClick={() => navigate("/inbox")}>
+            <i className="bx  bx-chevron-left text-3xl cursor-pointer"></i>{" "}
+          </button>
           <img
             src={photo}
             width="45px"
@@ -180,13 +164,15 @@ const Chat = () => {
           </div>
         </div>
         <i
-          className={`bx bxs-trash text-4xl pr-6 cursor-pointer ${listDelete.length > 0 ? 'text-red-500' : ''}`}
+          className={`bx bxs-trash text-4xl pr-6 cursor-pointer ${
+            listDelete.length > 0 ? "text-red-500" : ""
+          }`}
           onClick={handleDelete}
         ></i>
       </header>
 
       {/* MENSAJES */}
-      <main className="flex flex-col gap-3 py-4 pr-6 pl-3 overflow-y-auto scroll-hidden flex-grow bg-neutral-700">
+      <main className="flex flex-col gap-3 py-4 pr-6 pl-3 overflow-y-auto scroll-hidden flex-grow bg-second">
         {liveMessages.length > 0 ? (
           liveMessages.map((message, idx) => (
             <MessageContainer
@@ -227,7 +213,6 @@ const Chat = () => {
 
       {/* FOOTER */}
       <footer className="bg-neutral-800 w-full flex gap-2 items-center py-3 px-4">
-
         {/* Subir imagen */}
         {!inputContent.trim() && !selectedImage && (
           <div className="chat-icons flex items-center gap-2">

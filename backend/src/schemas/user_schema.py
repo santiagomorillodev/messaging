@@ -47,6 +47,7 @@ class UserReadMe(UserBase):
     id: int
     email: EmailStr
     avatar_url: Optional[str] = None
+    banner_url: Optional[str] = None
     description: Optional[str] = None
     follows: Optional[int] = None
     status: bool

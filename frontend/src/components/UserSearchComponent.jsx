@@ -32,7 +32,7 @@ export default function UserSearchComponent({ id, photo = null, name = 'Loading.
   };
 
   return (
-    <div className="flex justify-between items-center px-4 py-2 bg-third border-b border-neutral-500">
+    <div className="flex justify-between items-center px-4 py-2 bg-second text-white border-b border-neutral-500">
       <div className="flex gap-3 items-center" onClick={() => navigate(`/profile`, {state: {id, name, photo, status, followerCount}})}>
         <img
           src={photo}
@@ -42,14 +42,14 @@ export default function UserSearchComponent({ id, photo = null, name = 'Loading.
         />
         <div>
           <p>{name || "Unknown"}</p>
-          <p className="text-neutral-700 text-sm">{username}</p>
+          <p className="text-neutral-400 text-sm">{username}</p>
         </div>
       </div>
 
       <div className="flex items-center gap-2">
         {error && <span className="text-red-500 text-sm">{error}</span>}
         <button
-          className={currentSearch ? "hidden" : "py-2 px-4 bg-red-400 rounded-3xl font-semibold"}
+          className={currentSearch ? "hidden" : "py-2 px-4 bg-red-500 rounded-3xl font-semibold"}
           onClick={handleDelete}
           disabled={deleting}
         >

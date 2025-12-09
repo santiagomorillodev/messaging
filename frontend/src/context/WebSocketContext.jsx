@@ -1,47 +1,155 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import useGetCurrentUser from "../hooks/useGetCurrentUser";
 
-const WebSocketContext = createContext();
+const WebSocketContext = createContext(null);
+export const useWebSocket = () => useContext(WebSocketContext);
 
-export const WebSocketProvider = ({ children }) => {
+export function WebSocketProvider({ children }) {
   const { currentUser } = useGetCurrentUser();
-  const [socket, setSocket] = useState(null);
-  const wsRef = useRef(null);
 
-  useEffect(() => {
+  const socketRef = useRef(null);
+  const reconnectTimer = useRef(null);
+
+  const [connected, setConnected] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+
+  // ============================
+  // UNREAD GLOBAL
+  // ============================
+  const [unreadByConversation, setUnreadByConversation] = useState({});
+
+  const [wsInstance, setWsInstance] = useState(null);
+
+  // ========================================================
+  // Cargar los mensajes no leídos al inicio
+  // ========================================================
+  const reloadUnread = async () => {
     if (!currentUser?.id) return;
 
+    try {
+      const res = await fetch("http://localhost:8000/conversation/unread", {
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      // data = { conversation_id: unread_count, ... }
+      setUnreadByConversation(data);
+    } catch (e) {
+      console.error("Error cargando unread:", e);
+    }
+  };
+
+  // ========================================================
+  // Limpiar un unread para una conversación
+  // ========================================================
+  const clearUnread = (conversationId) => {
+    setUnreadByConversation((prev) => {
+      const copy = { ...prev };
+      delete copy[conversationId];
+      return copy;
+    });
+  };
+
+  // ========================================================
+  // WEBSOCKET HANDLING
+  // ========================================================
+  const connectSocket = () => {
+    if (!currentUser?.id) return;
+
+    // Si ya existe, no vuelvas a abrir
+    if (socketRef.current?.readyState === WebSocket.OPEN) return;
+
     const ws = new WebSocket(`ws://localhost:8000/ws/user/${currentUser.id}`);
-    wsRef.current = ws;
 
-    ws.onopen = () => console.log("🟢 WebSocket conectado");
-    ws.onclose = () => console.log("🔴 WebSocket cerrado");
-    ws.onerror = (err) => console.error("❌ WS error:", err);
+    socketRef.current = ws;
+    setWsInstance(ws);
 
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        console.log("📩 Mensaje recibido (context):", data);
-        console.log('hola')
-
-        window.dispatchEvent(new CustomEvent("new-message", { detail: data }));
-      } catch (e) {
-        console.error("Error parseando mensaje:", e);
-      }
+    ws.onopen = () => {
+      setConnected(true);
+      reloadUnread();
+      if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
     };
 
-    setSocket(ws);
+    ws.onclose = () => {
+      setConnected(false);
+      attemptReconnect();
+    };
 
-    return () => {
+    ws.onerror = () => {
+      setConnected(false);
       ws.close();
     };
-  }, [currentUser?.id]);
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.type === "message") {
+        // Lógica para actualizar mensajes en tiempo real (ya implementada)
+        window.dispatchEvent(new CustomEvent("new-message", { detail: data }));
+      }
+
+      if (data.type === "notification") {
+        // Lógica para notificaciones (puedes mostrar un toast)
+        setNotifications((prev) => [...prev, data]);
+        window.dispatchEvent(
+          new CustomEvent("new-notification", { detail: data })
+        );
+      }
+
+      if (data.type === "unread_update") {
+        // El 'data.unread' es el mapa completo: { conversation_id: unread_count, ... }
+        // Reemplazamos el mapa actual con el nuevo mapa de no leídos.
+        setUnreadByConversation(data.unread); // <--- AQUI ESTÁ EL CAMBIO CLAVE
+
+        // Opcionalmente, puedes usar la siguiente línea si quieres MERGEAR:
+        // setUnreadByConversation(prev => ({ ...prev, ...data.unread }));
+
+        console.log("Nuevo mapa de no leídos recibido:", data.unread); // Ahora se ejecutará
+
+        window.dispatchEvent(new CustomEvent("new-unread", { detail: data }));
+      }
+    };
+  };
+
+  // Intentar reconectar solo 1 vez cada 2 segundos
+  const attemptReconnect = () => {
+    if (reconnectTimer.current) return; // evita múltiples timers
+    reconnectTimer.current = setTimeout(() => {
+      reconnectTimer.current = null;
+      connectSocket();
+    }, 2000);
+  };
+
+  // Abrir socket cuando currentUser cambie
+  useEffect(() => {
+    if (currentUser?.id) connectSocket();
+    return () => socketRef.current?.close();
+  }, [currentUser]);
+
+  // ========================================================
+  // API pública para enviar mensajes por WebSocket
+  // ========================================================
+  const send = (payload) => {
+    if (wsInstance?.readyState === WebSocket.OPEN) {
+      wsInstance.send(JSON.stringify(payload));
+    }
+  };
 
   return (
-    <WebSocketContext.Provider value={socket}>
+    <WebSocketContext.Provider
+      value={{
+        socket: wsInstance,
+        send,
+        connected,
+        notifications,
+        unreadByConversation,
+        setUnreadByConversation,
+        reloadUnread,
+        clearUnread,
+      }}
+    >
       {children}
     </WebSocketContext.Provider>
   );
-};
-
-export const useWebSocket = () => useContext(WebSocketContext);
+}

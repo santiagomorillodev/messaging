@@ -25,7 +25,7 @@ export function Profile() {
       </div>
     );
   }
-
+  console.log(currentUser);
   if (error) {
     return (
       <div className="w-full h-screen flex items-center justify-center text-red-400">
@@ -62,10 +62,10 @@ export function Profile() {
 
   return (
     <>
-      <section className="bg-seven">
+      <section className="bg-second">
         <div
           className="w-full h-40 bg-seven relative bg-cover bg-center"
-          style={{ backgroundImage: `url(${photo3})` }}
+          style={{ backgroundImage: `url(${currentUser.banner_url})` }}
         >
           <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
 
@@ -79,10 +79,10 @@ export function Profile() {
         <div className="w-full md:w-xl h-full md:h-[90vh] px-4 flex flex-col gap-5 mt-20">
           <div className="flex justify-between">
             <div>
-              <p className="text-xl w-full ml-3 font-bold">
+              <p className="text-xl w-full ml-3 font-bold text-white">
                 {currentUser["name"]}
               </p>
-              <p className="text-[12px] ml-3">
+              <p className="text-[12px] ml-3 text-gray-400">
                 <span>1000</span> Followers
               </p>
             </div>
@@ -103,10 +103,10 @@ export function Profile() {
           </p>
           <section className="flex items-center w-full gap-5 "></section>
 
-          <section className="w-full gap-5 p-2 rounded-sm flex flex-col bg-first">
+          <section className="w-full gap-5 p-2 rounded-sm flex flex-col bg-second text-white">
             <textarea
               placeholder="Write something..."
-              className="w-full border-b border-gray-600 text-xl outline-0 resize-none bg-transparent"
+              className="w-full border-b border-gray-600 text-xl outline-0 resize-none placeholder:text-gray-400"
               rows={2}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -120,7 +120,7 @@ export function Profile() {
                   className="max-h-60 rounded-md object-cover"
                 />
                 <button
-                  className="bg-fourth text-lg px-3 py-1 hidden"
+                  className="bg-third text-lg px-3 py-1 hidden"
                   disabled={(!comment && !image) || loadingPost}
                   onClick={handleSubmitPost}
                 >
@@ -132,7 +132,7 @@ export function Profile() {
             <div className="flex justify-between">
               <label
                 htmlFor="upload-image"
-                className="p-2 bg-fourth rounded-sm cursor-pointer inline-flex items-center gap-2 justify-between"
+                className="p-2 bg-third rounded-sm cursor-pointer inline-flex items-center gap-2 justify-between"
               >
                 <i className="bx bx-image text-4xl" />
               </label>
@@ -146,7 +146,7 @@ export function Profile() {
               />
 
               <button
-                className="bg-fourth text-lg px-3 py-1"
+                className="bg-third text-lg px-3 py-1"
                 disabled={!comment}
                 onClick={handleSubmitPost}
               >
@@ -155,7 +155,7 @@ export function Profile() {
             </div>
           </section>
         </div>
-        <h3 className="px-10 py-5 text-2xl font-semibold">Posts</h3>
+        <h3 className="px-10 py-5 text-2xl font-semibold text-white">Posts</h3>
       </section>
 
       

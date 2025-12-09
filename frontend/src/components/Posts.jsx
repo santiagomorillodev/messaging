@@ -63,15 +63,15 @@ export function Posts({ id, userId, name, avatar, postText, postImage, likes }) 
   };
 
   return (
-    <div className={`w-full max-w-[498px] overflow-hidden border border-gray-400 rounded-2xl bg-gray-200 relative ${visibility ? '' : 'hidden'}`} onContextMenu={handleMenu} >
+    <div className={`w-full max-w-[498px] overflow-hidden border border-gray-400 rounded-2xl bg-first relative ${visibility ? '' : 'hidden'}`} onContextMenu={handleMenu} >
       <div className="flex items-center justify-between py-3 px-2 w-full">
         <div className="flex gap-2">
           <div className="w-12 h-12 overflow-hidden">
             <img src={avatar} alt={`${name} avatar`} className="rounded-full w-12 h-12 object-cover border-2 border-blue-500" loading="lazy"/>
           </div>
           <div>
-            <p className="font-bold text-sm">{name}</p>
-            <p className="text-sm">today</p>
+            <p className="font-bold text-sm text-white">{name}</p>
+            <p className="text-sm text-white">today</p>
           </div>
         </div>
         {menu && (
@@ -90,11 +90,11 @@ export function Posts({ id, userId, name, avatar, postText, postImage, likes }) 
       <div className="p-4">
         <div className="flex items-center">
           <button onClick={handleClick} className={`${liked ? "scale-125" : "scale-100"} transition-transform duration-200`}>
-            <i className={`bx ${liked ? "bxs-heart text-red-500" : "bx-heart"} text-3xl`} />
+            <i className={`bx ${liked ? "bxs-heart text-red-500" : "bx-heart text-white"} text-3xl`} />
           </button>
-          <span className="text-lg mb-1">{numLikes}</span>
+          <span className="text-lg mb-1 text-white">{numLikes}</span>
         </div>
-        <p className="text-[15px] max-w-[70%]">{postText}</p>
+        <p className="text-[15px] max-w-[70%] text-white">{postText}</p>
       </div>
 
       

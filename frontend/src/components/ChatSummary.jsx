@@ -7,23 +7,33 @@ import useGetLastMessage from "../hooks/useGetLastMessage";
 import { useEffect, useState } from "react";
 import { useWebSocket } from "../context/WebSocketContext.jsx";
 import { useFormatMessageTime } from "../hooks/useFormatMessageTime";
-import { useChatSummaryMenu } from "../hooks/useChatSummaryMenu .js";
+import { useChatSummaryMenu } from "../hooks/useChatSummaryMenu";
 
 export const ChatSummary = ({ idUser, conversationId }) => {
   const navigate = useNavigate();
   const isDesktop = useIsDesktop();
-  const socket = useWebSocket();
+  const { socket, unreadByConversation, setUnreadByConversation } = useWebSocket();
 
   const [menu, setMenu] = useState(false);
   const [visibility, setVisibility] = useState(true);
   const [isDelete, setIsDelete] = useState(false);
 
+  // ==============================
+  // GET USER
+  // ==============================
   const { user, loading: userLoading, error: userError } = useGetUser(idUser);
+
+  // ==============================
+  // GET LAST MESSAGE
+  // ==============================
   const {
     lastMessage,
+    countUnreadMessages,
     loading: lastLoading,
-    error: lastError,
+    error: lastError
   } = useGetLastMessage(conversationId);
+
+  const unread = unreadByConversation[conversationId] ?? countUnreadMessages ?? 0;
 
   const [message, setMessage] = useState(null);
   const [loaded, setLoaded] = useState(false);
@@ -32,9 +42,9 @@ export const ChatSummary = ({ idUser, conversationId }) => {
   const loading = !loaded && (userLoading || lastLoading);
   const error = userError || lastError;
 
-  // ============================================================
-  // Hook que maneja menú + long press + borrar conversación
-  // ============================================================
+  // ==============================
+  // MENÚ + DELETE
+  // ==============================
   const { toggleMenu, startHold, cancelHold, deleteConversation } =
     useChatSummaryMenu({
       setMenu,
@@ -42,7 +52,9 @@ export const ChatSummary = ({ idUser, conversationId }) => {
       setIsDelete,
     });
 
-  // Guardar último mensaje
+  // ==============================
+  // CARGA INICIAL DEL ÚLTIMO MENSAJE
+  // ==============================
   useEffect(() => {
     if (lastMessage && !loaded) {
       setMessage(lastMessage);
@@ -50,7 +62,9 @@ export const ChatSummary = ({ idUser, conversationId }) => {
     }
   }, [lastMessage, loaded]);
 
-  // WebSocket live updates
+  // ==============================
+  // LIVE UPDATES POR WEBSOCKET
+  // ==============================
   useEffect(() => {
     if (!socket) return;
 
@@ -68,6 +82,9 @@ export const ChatSummary = ({ idUser, conversationId }) => {
     return () => window.removeEventListener("new-message", handleNewMessage);
   }, [socket, conversationId]);
 
+  // ==============================
+  // LOADING / ERROR / USER NULL
+  // ==============================
   if (loading) return <div className="p-4 opacity-50">Cargando chat...</div>;
   if (error) return <Error error={error} />;
   if (!user) return null;
@@ -80,8 +97,10 @@ export const ChatSummary = ({ idUser, conversationId }) => {
   const statusText = status ? "En línea" : "Desconectado";
   const followerCount = user.follows;
 
+  // ==============================
+  // CLICK => ABRIR CHAT
+  // ==============================
   const handleClick = async () => {
-    // no abrir chat si menú está abierto
     if (menu) return;
 
     await fetch(`http://localhost:8000/inbox/message/change-status/${chatId}`, {
@@ -89,6 +108,11 @@ export const ChatSummary = ({ idUser, conversationId }) => {
       credentials: "include",
       headers: { "Content-Type": "application/json" },
     });
+
+    setUnreadByConversation((prev) => ({
+      ...prev,
+      [chatId]: 0,
+    }));
 
     if (isDesktop) {
       try {
@@ -121,14 +145,14 @@ export const ChatSummary = ({ idUser, conversationId }) => {
   return (
     <div
       onClick={handleClick}
-      onContextMenu={toggleMenu} // click derecho
-      onMouseDown={startHold} // long press desktop
+      onContextMenu={toggleMenu}
+      onMouseDown={startHold}
       onMouseUp={cancelHold}
       onMouseLeave={cancelHold}
-      onTouchStart={startHold} // long press móvil
+      onTouchStart={startHold}
       onTouchEnd={cancelHold}
       className={`w-full flex gap-2 text-white ${
-        menu ? "bg-red-500" : "bg-neutral-900"
+        menu ? "bg-red-500" : "bg-second"
       } border-b border-gray-200 md:dark:bg-neutral-800 px-4 py-2 cursor-pointer relative ${
         isDelete ? "hidden" : ""
       }`}
@@ -153,16 +177,23 @@ export const ChatSummary = ({ idUser, conversationId }) => {
       </div>
 
       {/* Info del chat */}
-      <div className="w-full p-1 overflow-hidden">
+      <div className="w-full p-1 overflow-hidden relative">
         <div className="w-full flex justify-between">
           <span className="font-bold text-sm">{name}</span>
           <span className={`text-end text-sm ${visibility ? "" : "hidden"}`}>
             {time ?? "—"}
           </span>
         </div>
+
         <p className="truncate text-neutral-500 text-sm">
           {message?.content ?? ""}
         </p>
+
+        {unread > 0 && (
+          <p className="absolute bottom-0 right-0 size-5 bg-green-500 rounded-full flex items-center justify-center">
+            {unread}
+          </p>
+        )}
       </div>
 
       {/* Botón de eliminar */}
