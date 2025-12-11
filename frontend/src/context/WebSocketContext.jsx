@@ -13,16 +13,12 @@ export function WebSocketProvider({ children }) {
   const [connected, setConnected] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
-  // ============================
-  // UNREAD GLOBAL
-  // ============================
   const [unreadByConversation, setUnreadByConversation] = useState({});
+  console.log(unreadByConversation)
 
   const [wsInstance, setWsInstance] = useState(null);
 
-  // ========================================================
-  // Cargar los mensajes no leídos al inicio
-  // ========================================================
+
   const reloadUnread = async () => {
     if (!currentUser?.id) return;
 
@@ -136,6 +132,35 @@ export function WebSocketProvider({ children }) {
     }
   };
 
+  const disconnectSocket = () => {
+    console.log("Closing WebSocket...");
+
+    // Cancelar reconexiones automáticas
+    if (reconnectTimer.current) {
+      clearTimeout(reconnectTimer.current);
+      reconnectTimer.current = null;
+    }
+
+    // Cerrar conexión si existe
+    if (socketRef.current) {
+      try {
+        socketRef.current.onclose = null;  // evita que intente reconectar
+        socketRef.current.onerror = null;
+        socketRef.current.onmessage = null;
+
+        socketRef.current.close();
+        console.log("WebSocket closed manually.");
+      } catch (e) {
+        console.error("Error closing WS:", e);
+      }
+  }
+
+  setConnected(false);
+  socketRef.current = null;
+  setWsInstance(null);
+};
+
+
   return (
     <WebSocketContext.Provider
       value={{
@@ -147,6 +172,7 @@ export function WebSocketProvider({ children }) {
         setUnreadByConversation,
         reloadUnread,
         clearUnread,
+        disconnectSocket
       }}
     >
       {children}

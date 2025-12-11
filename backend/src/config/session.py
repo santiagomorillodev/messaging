@@ -4,8 +4,8 @@ from .base import Base
 from dotenv import load_dotenv
 import os
 load_dotenv()
-# URL = os.getenv('DATABASE_URL')
-URL = 'mysql+pymysql://root:admin@localhost:3306/MyDatabase'
+URL = os.getenv('DATABASE_URL')
+
 if URL is None:
     raise ValueError('error connecting to the database ')
 engine = create_engine(URL, pool_pre_ping=True, echo=False)

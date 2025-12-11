@@ -44,6 +44,43 @@ async def user_socket(websocket: WebSocket, user_id: int, db: Session = Depends(
             content = data.get("content")
             recipient_id = data.get("recipient_id")
             base64_image = data.get("image_base64")
+            
+            if data.get("type") == "call-offer":
+                await manager.send_personal_message(
+                    {
+                        "type": "call-offer",
+                        "from": sender_id,
+                        "conversation_id": conversation_id,
+                        "offer": data["offer"],
+                    },
+                    recipient_id
+                )
+                continue
+
+            if data.get("type") == "call-answer":
+                await manager.send_personal_message(
+                    {
+                        "type": "call-answer",
+                        "from": sender_id,
+                        "conversation_id": conversation_id,
+                        "answer": data["answer"],
+                    },
+                    recipient_id
+                )
+                continue
+
+            if data.get("type") == "ice-candidate":
+                await manager.send_personal_message(
+                    {
+                        "type": "ice-candidate",
+                        "from": sender_id,
+                        "conversation_id": conversation_id,
+                        "candidate": data["candidate"],
+                    },
+                    recipient_id
+                )
+                continue
+
 
             if not sender_id or not conversation_id:
                 await websocket.send_json({

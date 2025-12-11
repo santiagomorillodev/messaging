@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from config import init_db
-from routers import user, conversations, messages, post, socket
+from routers import user, conversations, messages, post, socket, signaling
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -19,6 +19,7 @@ app.include_router(conversations)
 app.include_router(messages)
 app.include_router(post)
 app.include_router(socket)
+app.include_router(signaling)
 
 @app.get('/')
 def root():

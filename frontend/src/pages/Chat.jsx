@@ -1,12 +1,25 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useWebSocket } from "../context/WebSocketContext";
 import useGetCurrentUser from "../hooks/useGetCurrentUser";
 import { useDesktopView } from "../context/DesktopViewContext";
 import useGetMessages from "../hooks/useGetMessages";
 import { MessageContainer } from "../components/MessageContainer";
 import { useLocation, useNavigate } from "react-router-dom";
+import CallButton from "../components/CallButton";
+import { useCallContext } from "../context/CallContext"; 
 
 const Chat = () => {
+  const callApi = useCallContext();
+
+const call = callApi?.call;
+const acceptCall = callApi?.acceptCall;
+const rejectCall = callApi?.rejectCall;
+const endCall = callApi?.endCall;
+const inCall = callApi?.inCall
+const incomingCall = callApi?.incomingCall;
+const remoteAudio = callApi?.remoteAudio;
+
+
   const { socket, send } = useWebSocket();
   const navigate = useNavigate();
   const { currentUser } = useGetCurrentUser();
@@ -33,11 +46,11 @@ const Chat = () => {
   const chatData = location.state || {};
   const { id, name, photo, chatId, status } = chatData || {};
 
-  const { messages = [], loading = false } = useGetMessages({
-    conversationId: chatId,
-  });
+  const otherUserId = id;
 
-  const otherUserId = id
+  const { messages = [], loading = false } = useGetMessages({
+    conversationId: chatId
+  });
 
   useEffect(() => {
     if (!loading && initialLoad) {
@@ -53,7 +66,6 @@ const Chat = () => {
       const data = event.detail;
       if (data.conversation_id !== chatId) return;
 
-      // evitar duplicados
       setLiveMessages((prev) => {
         const exists = prev.some(
           (msg) =>
@@ -71,7 +83,6 @@ const Chat = () => {
     return () => window.removeEventListener("new-message", handleNewMessage);
   }, [socket, chatId]);
 
-  
   const sendMessage = () => {
     if (!socket || socket.readyState !== WebSocket.OPEN) return;
 
@@ -80,7 +91,7 @@ const Chat = () => {
       recipient_id: otherUserId,
       conversation_id: chatId,
       content: inputContent || null,
-      image_base64: null,
+      image_base64: null
     };
 
     if (selectedImage) {
@@ -109,27 +120,22 @@ const Chat = () => {
   };
 
   const handleDelete = async () => {
-    console.log("Messages to delete:", listDelete);
     for (const id of listDelete) {
-      console.log("Deleting message with id:", id);
       const response = await fetch(
         `http://localhost:8000/inbox/message/delete/${id}`,
         {
           method: "DELETE",
-          credentials: "include",
+          credentials: "include"
         }
       );
-      1;
 
       if (response.ok) {
         setVisibility((prev) => [...prev, id]);
       }
-      if (!response.ok) {
-        console.log("Error deleting conversation");
-      }
     }
     setListDelete([]);
   };
+
   if (!currentUser) return <p className="text-white">Cargando usuario...</p>;
   if (!name)
     return (
@@ -144,13 +150,36 @@ const Chat = () => {
       </div>
     );
 
+
   return (
     <div className="w-full h-screen flex flex-col overflow-hidden select-none">
+
+      {/* UI DE LLAMADA ENTRANTE */}
+      {incomingCall && (
+        <div className="absolute top-4 left-0 right-0 mx-auto bg-neutral-800 text-white w-[90%] p-4 rounded-md shadow-lg z-50">
+          <p>{incomingCall.from} te está llamando...</p>
+          <div className="flex gap-4 mt-3">
+            <button
+              onClick={acceptCall}
+              className="bg-green-600 px-4 py-2 rounded-md"
+            >
+              Aceptar
+            </button>
+            <button
+              onClick={rejectCall}
+              className="bg-red-600 px-4 py-2 rounded-md"
+            >
+              Rechazar
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* HEADER */}
       <header className="flex justify-between items-center w-full py-2 bg-first text-white">
-        <div className="flex items-center  cursor-pointer">
+        <div className="flex items-center cursor-pointer">
           <button onClick={() => navigate("/inbox")}>
-            <i className="bx  bx-chevron-left text-3xl cursor-pointer"></i>{" "}
+            <i className="bx bx-chevron-left text-3xl cursor-pointer"></i>
           </button>
           <img
             src={photo}
@@ -163,6 +192,10 @@ const Chat = () => {
             <p>{status ? "Active now" : "Inactive"}</p>
           </div>
         </div>
+
+        {/* BOTÓN DE LLAMADA */}
+        <CallButton targetId={otherUserId}/>
+
         <i
           className={`bx bxs-trash text-4xl pr-6 cursor-pointer ${
             listDelete.length > 0 ? "text-red-500" : ""
@@ -191,7 +224,10 @@ const Chat = () => {
         )}
       </main>
 
-      {/* PREVIEW DE IMAGEN */}
+      {/* REMOTE AUDIO */}
+      <audio ref={remoteAudio} autoPlay />
+
+      {/* PREVIEW IMAGEN */}
       {selectedImage && (
         <div className="w-[70%] p-3 bg-white rounded-md border border-white mx-4 mb-2">
           <div className="flex justify-between items-center mb-2">
@@ -213,7 +249,6 @@ const Chat = () => {
 
       {/* FOOTER */}
       <footer className="bg-neutral-800 w-full flex gap-2 items-center py-3 px-4">
-        {/* Subir imagen */}
         {!inputContent.trim() && !selectedImage && (
           <div className="chat-icons flex items-center gap-2">
             <input
@@ -226,14 +261,12 @@ const Chat = () => {
               className="hidden"
               id="image-upload"
             />
-
             <label htmlFor="image-upload" className="cursor-pointer">
               <i className="bx bx-camera text-3xl text-white"></i>
             </label>
           </div>
         )}
 
-        {/* Input único */}
         <textarea
           ref={inputRef}
           placeholder="Send a message"

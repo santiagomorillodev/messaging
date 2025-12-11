@@ -21,17 +21,16 @@ export function Login() {
     });
 
     if (response.ok) {
-      const data = await response.json();
       navigate("/inbox");
     } else {
       console.error("Login failed");
     }
   }
   return (
-    <section className="h-dvh flex flex-col justify-center items-center gap-5 bg-seven">
+    <section className="h-dvh flex flex-col justify-center items-center gap-5 ">
       <form
         onSubmit={handleSubmit}
-        className="bg-seven w-[410px] h-[483px] flex flex-col justify-between p-14"
+        className="bg-first w-[410px] h-[483px] flex flex-col justify-between p-14 text-white"
       >
         <h1 className="text-xl text-left">Welcome to this messaging app</h1>
         <p className="text-gray-400 text-left">
@@ -42,7 +41,7 @@ export function Login() {
           id="username"
           type="text"
           placeholder="user@example.com"
-          className="w-[308px] h-[48px] border-[0.1px] border-gray-300 rounded-md pl-3 outline-0"
+          className="w-[308px] h-[48px] border-[0.1px] border-gray-300 rounded-md pl-3 outline-0 placeholder:text-gray-400"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
@@ -50,7 +49,7 @@ export function Login() {
           id="password"
           type="password"
           placeholder="Password"
-          className="w-[308px] h-[48px] border-[0.1px] border-gray-300 rounded-md pl-3 outline-0"
+          className="w-[308px] h-[48px] border-[0.1px] border-gray-300 rounded-md pl-3 outline-0 placeholder:text-gray-400"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -82,7 +81,7 @@ export function Login() {
         </button>
       </form>
 
-      <section className="w-[410px] h-14 bg-first flex justify-center items-center">
+      <section className="w-[410px] h-14 bg-first flex justify-center items-center text-white">
         <p className="">
           No tienes una cuenta?{" "}
           <span

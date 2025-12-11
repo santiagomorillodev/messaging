@@ -3,7 +3,7 @@ import { useWebSocket } from "../context/WebSocketContext";
 import useGetCurrentUser from "../hooks/useGetCurrentUser";
 
 export default function NavSettings() {
-  const socket = useWebSocket();
+  const { disconnectSocket } = useWebSocket();
   const navigate = useNavigate();
   const { setCurrentUserFunction } = useGetCurrentUser();
 
@@ -11,26 +11,23 @@ export default function NavSettings() {
     console.log("Logging out...");
 
     try {
-      const res = await fetch("http://localhost:8000/logout", {
+      await fetch("http://localhost:8000/logout", {
         method: "POST",
         credentials: "include",
       });
-
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("Error al cerrar sesión:", text);
-      } else {
-        console.log("Logout exitoso en backend");
-      }
     } catch (error) {
-      console.error("Error de red en logout:", error);
+      console.error("Network logout error:", error);
     }
 
     document.cookie =
       "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    if (socket) socket.close();
+
+    // CERRAR WS ANTES DE BORRAR USER
+    disconnectSocket();
+
     setCurrentUserFunction(null);
     navigate("/");
+
     console.log("Logged out successfully");
   };
 
